@@ -46,7 +46,7 @@ struct RGB{
 
 struct Vox{
 	unsigned char state;
-	unsigned char alpha; //this is a better way to handle alpha, in this context
+	unsigned char alpha; //this is a better way to handle alpha, I think
 	bool mask;
 
 	//unsigned char lighting_intensity;
@@ -126,34 +126,34 @@ public:
 	void draw_noise(bool draw=true, unsigned char alpha=255, bool mask=false);
 	//replaces the noisefill argument for the init_block
 
-	void draw_point(vec point, unsigned char set, bool draw=true, unsigned char alpha=255, bool mask=false);
+	void draw_point(vec point, Vox set, bool draw=true, bool mask=false);
 	//draws a point at the location given by the input argument
 
-	void draw_line_segment(vec v1, vec v2, unsigned char set, bool draw=true, unsigned char alpha=255, bool mask=false);
+	void draw_line_segment(vec v1, vec v2, Vox set, bool draw=true, bool mask=false);
 	//draws a line segment from point1 to point2
 
-	void draw_triangle(vec v0, vec v1, vec v2, unsigned char set, bool draw=true, unsigned char alpha=255, bool mask=false);
+	void draw_triangle(vec v0, vec v1, vec v2, Vox set, bool draw=true, bool mask=false);
 	//draws a triangle between point 1, point 2 and point 3
 
-	void draw_sphere(vec center, double radius, unsigned char set, bool draw=true, unsigned char alpha=255, bool mask=false);
+	void draw_sphere(vec center, double radius, Vox set, bool draw=true, bool mask=false);
 	//draws a sphere centered at the point center, with a radius set by radius
 
-	void draw_ellipsoid(vec center, vec radii, unsigned char set, bool draw=true, unsigned char alpha=255, bool mask=false);
+	void draw_ellipsoid(vec center, vec radii, Vox set, bool draw=true, bool mask=false);
 	//draws an ellipsoid, which is a sphere that has three separate radii
 		//this needs to be extended so that this shape can rotate. As we sit right now
 		//this shape can change position but the axes can be only along the cardinal
 		//axes of the block. It should be a relatively simple thing to use a rotation
 		//matrix, but I will need to think about the architecture of the function.
 
-	void draw_cylinder(vec bvec, vec tvec, double radius,unsigned char set, bool draw=true, unsigned char alpha=255, bool mask=false);
+	void draw_cylinder(vec bvec, vec tvec, double radius, Vox set, bool draw=true, bool mask=false);
 	//draws a cylinder with circular faces centered at bvec and tvec, with the
 		//radius specified by the input argument.
 
-	void draw_tube(vec bvec, vec tvec, double inner_radius, double outer_radius,unsigned char set, bool draw=true, unsigned char alpha=255, bool mask=false);
+	void draw_tube(vec bvec, vec tvec, double inner_radius, double outer_radius, Vox set, bool draw=true, bool mask=false);
 	//draws a cylinder that has a smaller cyilnder taken out of the center
 		//	>>	make sure to add validation code for if inner >= outer
 
-	void draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec e, vec f, vec g, vec h, unsigned char set, bool draw=true, unsigned char alpha=255, bool mask=false);
+	void draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec e, vec f, vec g, vec h, Vox set, bool draw=true, bool mask=false);
 	//draws a block shape that can be stretched, skewed, twisted and rotated.
 		//the main issue comes in when the four points making up a face do not lie in
 		//the same plane - there the algorithm has to choose between two ambigous
@@ -180,13 +180,10 @@ public:
 
 		int num_cells;
 
-		unsigned int get_data_by_vector_index(vec index);
+		Vox get_data_by_vector_index(vec index);
 		//return the state value for the selected index
 
-		unsigned char get_alpha_by_vector_index(vec index);
-		//same as set_data_by_vector_index, but for the alpha
-
-		void set_data_by_vector_index(vec index, unsigned char set, bool draw, bool mask, unsigned char alpha);
+		void set_data_by_vector_index(vec index, bool draw, bool mask, Vox set);
 		//set the data at the selected index, also setting the mask if the
 		//mask variable is true
 
