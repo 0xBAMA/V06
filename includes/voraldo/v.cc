@@ -123,7 +123,9 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  	vec block_max = vec(block_xdim,block_ydim,block_zdim);
 
  	Vox tempstate;
- 	unsigned char	point_color[3];
+ 	RGB	point_color;
+
+  unsigned char image_color[3];
 
  	bool xtest,ytest,ztest;
  	bool line_box_intersection;
@@ -160,16 +162,24 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
 
  			if(line_box_intersection)
  			{//we will need to step through the box
+        std::cout << "hit" << endl;
  				for(double z = tmin; z <= tmax; z+=0.5) //go from close intersection point to far intersection point
  				{
+          std::cout << "test" << endl;
  					vector_test_point = vector_starting_point + z*vector_increment;
  					tempstate = parent->get_data_by_vector_index(vector_test_point);
- 					if(tempstate.state!=0)
- 					{
- 						point_color = palette[temp];
 
- 						img.draw_point(image_current_x,image_current_y,point_color);
- 						break;
+ 					if(tempstate.state>=0 && tempstate.state<=62)
+ 					{
+ 						point_color = parent->palette[tempstate.state];
+
+            std::cout << "got point color" << endl;
+
+            image_color[0] = point_color.red;
+            image_color[1] = point_color.green;
+            image_color[2] = point_color.blue;
+
+            img.draw_point(image_current_x,image_current_y,dark_gold);
  					}
  				}
  			}
@@ -196,7 +206,7 @@ Voraldo_Draw::~Voraldo_Draw()
 
 }
 
-void Voraldo_Draw::init_block(int x, int y, int z)
+void Voraldo_Draw::init_block(vec dimensions)
 {
 
  if(parent->data != NULL)
@@ -204,9 +214,9 @@ void Voraldo_Draw::init_block(int x, int y, int z)
 		delete[] parent->data;
  }
 
- parent->x_dim = x;
-	parent->y_dim = y;
-	parent->z_dim = z;
+  parent->x_dim = dimensions[0];
+	parent->y_dim = dimensions[1];
+	parent->z_dim = dimensions[2];
 
 	parent->num_cells = parent->x_dim * parent->y_dim * parent->z_dim;
 
@@ -375,6 +385,7 @@ void Voraldo_Draw::draw_sphere(vec center_point, double radius, Vox set, bool dr
 
  				if((testx + testy + testz) < radius*radius)
  				{	//pretty self explainatory, equation of sphere
+          std::cout << "in sphere" << endl;
           index = vec(i,j,k);
  					draw_point(index,set,draw,mask);
  				}
@@ -516,7 +527,6 @@ void Voraldo_Draw::draw_tube(vec bvec, vec tvec, double inner_radius, double out
  			}
  		}
  	}
-
 }
 
 void Voraldo_Draw::draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec e, vec f, vec g, vec h, Vox set, bool draw, bool mask)
@@ -919,7 +929,7 @@ Voraldo::~Voraldo()
   delete[] data;
 }
 
-unsigned char Voraldo::get_data_by_vector_index(vec index)
+Vox Voraldo::get_data_by_vector_index(vec index)
 {
   int data_index = index[2]*y_dim*x_dim + index[1]*x_dim + index[0];
 
@@ -929,14 +939,21 @@ unsigned char Voraldo::get_data_by_vector_index(vec index)
 
   bool point_valid = x_valid && y_valid && z_valid;
 
+  Vox default_val;
+
 
   if(point_valid)
-   return data[data_index].state;
+   return data[data_index];
   else
-   return 0;
+  {
+    default_val.state = 0;
+    default_val.alpha = 0;
+    default_val.mask = false;
+    return default_val;
+  }
 }
 
-void Voraldo::set_data_by_vector_index(vec index, unsigned char set, bool draw, bool mask)
+void Voraldo::set_data_by_vector_index(vec index, Vox set, bool draw, bool mask)
 {
  int data_index = index[2]*y_dim*x_dim + index[1]*x_dim + index[0];
 
@@ -951,9 +968,9 @@ void Voraldo::set_data_by_vector_index(vec index, unsigned char set, bool draw, 
   {
    if(draw)
    {
-    data[data_index].state = set;
+    data[data_index].state = set.state;
    }
-   data[data_index].mask = mask;
+   data[data_index].mask = set.mask;
   }
 }
 

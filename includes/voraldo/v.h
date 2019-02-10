@@ -78,7 +78,7 @@ public:
 	Voraldo_Draw(Voraldo *p);
 	~Voraldo_Draw();
 
-	void init_block(int x, int y, int z);
+	void init_block(vec dimensions);
 	//initializes block with selected dimensions, with or without noise
 
 	void clear_all();
@@ -183,7 +183,7 @@ public:
 		Vox get_data_by_vector_index(vec index);
 		//return the state value for the selected index
 
-		void set_data_by_vector_index(vec index, bool draw, bool mask, Vox set);
+		void set_data_by_vector_index(vec index, Vox set, bool draw, bool mask);
 		//set the data at the selected index, also setting the mask if the
 		//mask variable is true
 
