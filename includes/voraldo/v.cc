@@ -18,8 +18,8 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
 {
   using namespace cimg_library;
 
- 	int image_x_dimension = 1921;
- 	int image_y_dimension = 1081;
+ 	int image_x_dimension = 1919;
+ 	int image_y_dimension = 1079;
 
  	CImg<unsigned char> img(image_x_dimension,image_y_dimension,1,3,0);
 
@@ -279,9 +279,9 @@ void Voraldo_Draw::draw_noise(bool draw, unsigned char alpha, bool mask)
      {
        if(!parent->data[i].mask)
        {
-        parent->data[i].state = std::rand()%255;//this is a little different
-        parent->data[i].alpha = alpha;
-        parent->data[i].mask = mask;
+          parent->data[i].state = std::rand()%255;//this is a little different
+          parent->data[i].alpha = alpha;
+          parent->data[i].mask = mask;
        }
      }
   }
@@ -294,7 +294,7 @@ void Voraldo_Draw::draw_point(vec point, Vox set, bool draw, bool mask)
 
 void Voraldo_Draw::draw_line_segment(vec v1, vec v2, Vox set, bool draw, bool mask)
 {
- vec starting_point = v1;
+  vec starting_point = v1;
 	vec current_point = starting_point;
 	vec line_vector = (v2-v1);
 
@@ -305,7 +305,8 @@ void Voraldo_Draw::draw_line_segment(vec v1, vec v2, Vox set, bool draw, bool ma
 		current_point[0] = starting_point[0] + i*(line_vector[0]/length);
 		current_point[1] = starting_point[1] + i*(line_vector[1]/length);
 		current_point[2] = starting_point[2] + i*(line_vector[2]/length);
-		draw_point(current_point,set);
+
+    draw_point(current_point,set,draw,mask);
 	}
 }
 
@@ -354,7 +355,7 @@ void Voraldo_Draw::draw_triangle(vec v0, vec v1, vec v2, Vox set, bool draw, boo
  			c2[1] = v0[1] + i*side2[1];
  			c2[2] = v0[2] + i*side2[2];
 
- 			draw_line_segment(c1,c2,set);
+ 			draw_line_segment(c1,c2,set,draw,mask);
  		}
  	}
 }
@@ -374,8 +375,8 @@ void Voraldo_Draw::draw_sphere(vec center_point, double radius, Vox set, bool dr
 
  				if((testx + testy + testz) < radius*radius)
  				{	//pretty self explainatory, equation of sphere
-      index = vec(i,j,k);
- 					parent->set_data_by_vector_index(index,set,draw,mask);
+          index = vec(i,j,k);
+ 					draw_point(index,set,draw,mask);
  				}
  			}
  		}
@@ -403,8 +404,8 @@ void Voraldo_Draw::draw_ellipsoid(vec center_point, vec radii, Vox set, bool dra
 
  				if(result <= 1){	//point inside ellipsoid - do we want to be able to invert this?
  					//(outside, or on the surface, with >= and ==, respectively)
-      index = vec(i,j,k);
- 					parent->set_data_by_vector_index(index,set,draw,mask);
+          index = vec(i,j,k);
+ 					draw_point(index,set,draw,mask);
  				}
  			}
  		}
@@ -456,7 +457,7 @@ void Voraldo_Draw::draw_cylinder(vec bvec, vec tvec, double radius, Vox set, boo
 
 					point_to_line_distance = linalg::length(cross(tvec-bvec,bvec-vec(i,j,k)))/linalg::length(tvec-bvec);
 					if(point_to_line_distance <= radius){
-						parent->set_data_by_vector_index(index,set,draw,mask);
+						draw_point(index,set,draw,mask);
 					}
 				}
 			}
@@ -509,7 +510,7 @@ void Voraldo_Draw::draw_tube(vec bvec, vec tvec, double inner_radius, double out
  					point_to_line_distance = linalg::length(cross(tvec-bvec,bvec-vec(i,j,k)))/linalg::length(tvec-bvec);
 
  					if(point_to_line_distance <= outer_radius && point_to_line_distance >= inner_radius){
-       parent->set_data_by_vector_index(index,set,draw,mask);
+            draw_point(index,set,draw,mask);
  					}
  				}
  			}
@@ -782,9 +783,255 @@ void Voraldo_Draw::draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec
 
  				if(xtest && ytest && ztest)
  				{
- 					parent->set_data_by_vector_index(current,set,draw,mask);
+ 					draw_point(current,set,draw,mask);
  				}
  			}
  		}
  	}
+}
+
+
+
+//---------------------------
+Voraldo::Voraldo()
+{
+  io = new Voraldo_IO(this);
+  draw = new Voraldo_Draw(this);
+
+  palette = new RGB[256];
+  //need to fill in all the data for colors
+
+  //colors
+
+  palette[0] = {0,0,0}; //black - duplicate, but here used to represent 'emtpy'
+
+/*weird desaturated palette "steam lords"
+  palette[ 1] = { 33, 59, 37,255};	 //#213b25 dark green
+  palette[ 2] = { 58,	96,	74,255}	  //#3a604a medium green
+  palette[ 3] = { 79,119, 84,255};	 //#4f7754 light green
+  palette[ 4] = {161,159,124,255}; 	//#a19f7c light tan
+  palette[ 5] = {119,116,	79,255};	 //#77744f medium tan
+  palette[ 6] = {119,	92,	79,255};	 //#775c4f light rose
+  palette[ 7] = { 96,	59,	58,255};	 //#603b3a dark rose
+  palette[ 8] = { 59,	33,	55,255};	 //#3b2137 purple
+  palette[ 9] = { 23,	14,	25,255};	 //#170e19 darkest blue (0)
+  palette[10] = { 47,	33,	59,255};	 //#2f213b dark blue (1)
+  palette[11] = { 67,	58,	96,255};	 //#433a60 dark blue (2)
+  palette[12] = { 79,	82,119,255};	 //#4f5277 dark blue (3)
+  palette[13] = {101,115,140,255};	 //#65738c light blue (4)
+  palette[14] = {124,148,161,255};	 //#7c94a1 light blue (5)
+  palette[15] = {160,185,186,255};	 //#a0b9ba light blue (6)
+  palette[16] = {192,209,204,255};	 //#c0d1cc light blue (7)
+*/
+
+//REDS
+
+  palette[ 1] = {254,0,0};      //MS Light Red High
+  palette[ 2] = {235,138,96};   //MS Light Red Low
+  palette[ 3] = {126,0,0};      //MS Dark Red High
+  palette[ 4] = {138,54,34};    //MS Dark Red Low
+  palette[ 5] = {120,24,38};    //T Dark Red
+  palette[ 6] = {165,45,39};    //T Red
+
+//ORANGES
+
+  palette[ 7] = {255,77,0};     //Orange 1
+  palette[ 8] = {255,120,30};   //Orange 2
+  palette[ 9] = {243,120,43};   //Orange 3
+  palette[10] = {201,109,69};   //T Orange
+
+ //YELLOWS
+
+  palette[11] = {255,255,4};    //MS Light Yellow High
+  palette[12] = {255,217,63};   //MS Light Yellow Low
+  palette[13] = {127,107,0};    //Dark Gold
+  palette[14] = {126,126,0};    //MS Dark Yellow High
+  palette[15] = {170,92,61};    //MS Dark Yellow Low
+  palette[16] = {204,165,98};   //T Yellow Dark
+  palette[17] = {207,194,129};  //T Yellow Tan
+  palette[18] = {209,202,128};  //T Yellow
+  palette[19] = {162,157,107};  //T Tan
+  palette[20] = {131,107,63};   //T Light Brown
+  palette[21] = {99,73,44};     //T Brown
+  palette[22] = {65,51,37};     //T Dark Brown
+
+//GREENS
+
+  palette[23] = {6,255,4};      //MS Light Green High
+  palette[24] = {108,217,71};   //MS Light Green Low
+  palette[25] = {4,126,0};      //MS Dark Green High
+  palette[26] = {12,126,69};    //MS Dark Green Low
+  palette[27] = {151,181,138};  //T Light Green
+  palette[28] = {101,132,92};   //T Med Green
+  palette[29] = {34,58,48};     //T Med-Dark Green
+  palette[30] = {32,44,17};     //T Dark Green
+
+//BLUE/INDIGO
+
+  palette[31] = {0,0,126};      //MS Dark Blue High
+  palette[32] = {34,52,209};    //MS Dark Blue Low
+  palette[33] = {0,0,255};      //MS Light Blue High
+  palette[34] = {76,129,251};   //MS Light Blue Low
+  palette[35] = {62,62,138};    //T Med Blue
+  palette[36] = {76,110,173};   //T Dark blue
+  palette[37] = {124,168,213};  //T Blue
+  palette[38] = {172,220,241};  //T Light Blue
+  palette[39] = {4,126,126};    //MS Dark Teal High
+  palette[40] = {68,170,204};   //MS Dark Teal Low
+  palette[41] = {6,255,255};    //MS Light Teal High
+  palette[42] = {123,226,249};  //MS Light Teal low
+
+//VIOLET
+
+  palette[43] = {254,0,255};    //MS Light Purple High
+  palette[44] = {226,61,105};   //MS Light Purple Low
+  palette[45] = {82,30,46};     //T Maroon
+  palette[46] = {126,0,126};    //MS Dark Purple High
+  palette[47] = {92,46,120};    //MS Dark Purple Low
+  palette[48] = {88,38,79};     //T Darker Purple
+  palette[49] = {80,59,104};    //T Dark Purple
+  palette[50] = {133,91,105};   //T Purple
+  palette[51] = {223,185,202};  //T Pink
+
+//GREYSCALE
+
+  palette[52] = {255,255,255};  //White
+  palette[53] = {190,190,190};  //MS Light Grey High
+  palette[54] = {181,181,181};  //MS Light Grey Low
+  palette[55] = {126,126,126};  //MS Dark Grey High
+  palette[56] = {94,96,110};    //MS Dark Grey Low
+  palette[57] = {212,237,237};  //T Lighter Grey
+  palette[58] = {134,149,152};  //T Med Light Grey
+  palette[59] = {95,99,103};    //T Med Grey
+  palette[60] = {58,59,61};     //T Dark-Med Grey
+  palette[61] = {40,34,31};     //T Dark Grey
+  palette[62] = {0,0,0};        //Black
+
+  data = NULL;//call draw.init_block(x,y,z,noise_fill)
+  //to populate the data array
+}
+
+Voraldo::~Voraldo()
+{
+  delete[] io;
+  delete[] draw;
+  delete[] palette;
+  delete[] data;
+}
+
+unsigned char Voraldo::get_data_by_vector_index(vec index)
+{
+  int data_index = index[2]*y_dim*x_dim + index[1]*x_dim + index[0];
+
+  bool x_valid = index[0] < x_dim && index[0] >= 0;
+  bool y_valid = index[1] < y_dim && index[1] >= 0;
+  bool z_valid = index[2] < z_dim && index[2] >= 0;
+
+  bool point_valid = x_valid && y_valid && z_valid;
+
+
+  if(point_valid)
+   return data[data_index].state;
+  else
+   return 0;
+}
+
+void Voraldo::set_data_by_vector_index(vec index, unsigned char set, bool draw, bool mask)
+{
+ int data_index = index[2]*y_dim*x_dim + index[1]*x_dim + index[0];
+
+ bool x_valid = index[0] < x_dim && index[0] >= 0;
+ bool y_valid = index[1] < y_dim && index[1] >= 0;
+ bool z_valid = index[2] < z_dim && index[2] >= 0;
+
+ bool point_valid = x_valid && y_valid && z_valid;
+
+ if(point_valid)
+  if(!data[data_index].mask)
+  {
+   if(draw)
+   {
+    data[data_index].state = set;
+   }
+   data[data_index].mask = mask;
+  }
+}
+
+bool Voraldo::planetest(vec plane_point, vec plane_normal, vec test_point)
+{
+ //return false if the point is above the plane
+	//return true if the point is below the plane
+
+	double result = 0.0;
+
+	//equation of plane
+
+	// a (x-x1) + b (y-y1) + c (z-z1) = 0
+
+	double a = plane_normal[0];
+	double b = plane_normal[1];
+	double c = plane_normal[2];
+
+	double x1 = plane_point[0];
+	double y1 = plane_point[1];
+	double z1 = plane_point[2];
+
+	double x = test_point[0];
+	double y = test_point[1];
+	double z = test_point[2];
+
+	result = a * (x - x1) + b * (y - y1) + c * (z - z1);
+
+	return (result < 0)?true:false;
+}
+
+bool Voraldo::intersect_ray_bbox(vec bbox_min, vec bbox_max, vec ray_org, vec ray_dir, double &tmin, double &tmax, double t0, double t1)
+{/*
+ * Ray-box intersection using IEEE numerical properties to ensure that the
+ * test is both robust and efficient, as described in:
+ *
+ *      Amy Williams, Steve Barrus, R. Keith Morley, and Peter Shirley
+ *      "An Efficient and Robust Ray-Box Intersection Algorithm"
+ *      Journal of graphics tools, 10(1):49-54, 2005
+ *
+ */
+//I pulled this code after three attempts at my own implementation didn't work
+ vec bbox[2];
+	int sign[3];
+
+	vec inv_direction = vec(1/ray_dir[0],1/ray_dir[1],1/ray_dir[2]);
+
+	sign[0] = (inv_direction[0] < 0);
+	sign[1] = (inv_direction[1] < 0);
+	sign[2] = (inv_direction[2] < 0);
+
+	bbox[0] = bbox_min;
+	bbox[1] = bbox_max;
+
+
+	//already declared (passed in by reference so that they can be used)
+  tmin = (bbox[sign[0]][0] - ray_org[0]) * inv_direction[0];
+  tmax = (bbox[1-sign[0]][0] - ray_org[0]) * inv_direction[0];
+
+  double tymin = (bbox[sign[1]][1] - ray_org[1]) * inv_direction[1];
+  double tymax = (bbox[1-sign[1]][1] - ray_org[1]) * inv_direction[1];
+
+  if ( (tmin > tymax) || (tymin > tmax) )
+    return false;
+  if (tymin > tmin)
+    tmin = tymin;
+  if (tymax < tmax)
+    tmax = tymax;
+
+  double tzmin = (bbox[sign[2]][2] - ray_org[2]) * inv_direction[2];
+  double tzmax = (bbox[1-sign[2]][2] - ray_org[2]) * inv_direction[2];
+
+  if ( (tmin > tzmax) || (tzmin > tmax) )
+    return false;
+  if (tzmin > tmin)
+    tmin = tzmin;
+  if (tzmax < tmax)
+    tmax = tzmax;
+  return ( (tmin < t1) && (tmax > t0) );
+
 }
