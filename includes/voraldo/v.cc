@@ -3,6 +3,19 @@
 using std::cout;
 using std::endl;
 
+
+Vox get_vox(unsigned char state, unsigned char alpha, bool mask)
+{
+  Vox temp;
+
+  temp.state = state;
+  temp.alpha = alpha;
+  temp.mask = mask;
+
+  return temp;
+}
+
+
 //---------------------------
 Voraldo_IO::Voraldo_IO(Voraldo *p)
 {
@@ -130,8 +143,8 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  	bool xtest,ytest,ztest;
  	bool line_box_intersection;
 
- 	//double t0 = 0;
- 	//double t1 = 9999;
+ 	double t0 = 0;
+ 	double t1 = 9999;
 
   double tmin, tmax;
 
@@ -158,28 +171,31 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  			//The goal here is to achieve some level of speedup when compared to
  			//doing an exhaustive check through all points on all vectors from
  			//the pixels in the image.
- 			line_box_intersection = parent->intersect_ray_bbox(block_min,block_max,vector_starting_point,vector_increment,tmin,tmax);
+ 			line_box_intersection = parent->intersect_ray_bbox(block_min,block_max,vector_starting_point,vector_increment,tmin,tmax,t0,t1);
 
  			if(line_box_intersection)
  			{//we will need to step through the box
-        std::cout << "hit" << endl;
+        //std::cout << "hit" << endl;
  				for(double z = tmin; z <= tmax; z+=0.5) //go from close intersection point to far intersection point
  				{
-          std::cout << "test" << endl;
+          //std::cout << "test" << endl;
  					vector_test_point = vector_starting_point + z*vector_increment;
+          vector_test_point = vec(floor(vector_test_point[0]),floor(vector_test_point[1]),floor(vector_test_point[2]));
  					tempstate = parent->get_data_by_vector_index(vector_test_point);
 
- 					if(tempstate.state>=0 && tempstate.state<=62)
+ 					if(tempstate.state>0 && tempstate.state<=62)
  					{
  						point_color = parent->palette[tempstate.state];
 
-            std::cout << "got point color" << endl;
+            //std::cout << "got point color" << endl;
 
             image_color[0] = point_color.red;
             image_color[1] = point_color.green;
             image_color[2] = point_color.blue;
 
-            img.draw_point(image_current_x,image_current_y,dark_gold);
+            //img.draw_point(image_current_x,image_current_y,dark_gold);
+            img.draw_point(image_current_x,image_current_y,image_color);
+            break;
  					}
  				}
  			}
@@ -385,7 +401,6 @@ void Voraldo_Draw::draw_sphere(vec center_point, double radius, Vox set, bool dr
 
  				if((testx + testy + testz) < radius*radius)
  				{	//pretty self explainatory, equation of sphere
-          std::cout << "in sphere" << endl;
           index = vec(i,j,k);
  					draw_point(index,set,draw,mask);
  				}
@@ -931,7 +946,9 @@ Voraldo::~Voraldo()
 
 Vox Voraldo::get_data_by_vector_index(vec index)
 {
+  //std::cout << "beginning" << endl;
   int data_index = index[2]*y_dim*x_dim + index[1]*x_dim + index[0];
+  //std::cout << "index calculated" << endl;
 
   bool x_valid = index[0] < x_dim && index[0] >= 0;
   bool y_valid = index[1] < y_dim && index[1] >= 0;
@@ -939,13 +956,16 @@ Vox Voraldo::get_data_by_vector_index(vec index)
 
   bool point_valid = x_valid && y_valid && z_valid;
 
-  Vox default_val;
+  //std::cout << "the index is " << index[0] << " " << index[1] << " " << index[2] << endl;
+
+  //std::cout << "index validated: " << data_index << " versus max array size of " << num_cells << endl;
 
 
   if(point_valid)
    return data[data_index];
   else
   {
+    Vox default_val;
     default_val.state = 0;
     default_val.alpha = 0;
     default_val.mask = false;
@@ -1013,7 +1033,7 @@ bool Voraldo::intersect_ray_bbox(vec bbox_min, vec bbox_max, vec ray_org, vec ra
  *
  */
 //I pulled this code after three attempts at my own implementation didn't work
- vec bbox[2];
+  vec bbox[2];
 	int sign[3];
 
 	vec inv_direction = vec(1/ray_dir[0],1/ray_dir[1],1/ray_dir[2]);

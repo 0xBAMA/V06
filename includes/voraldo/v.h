@@ -56,6 +56,8 @@ struct Vox{
 	//data for zero valued cells.
 };
 
+Vox get_vox(unsigned char state, unsigned char alpha, bool mask);
+
 class Voraldo_IO{
 public:
 	Voraldo *parent;
