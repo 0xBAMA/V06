@@ -967,11 +967,11 @@ Vox Voraldo::get_data_by_vector_index(vec index)
   {
     Vox default_val;
     default_val.state = 0;
-    default_val.alpha = 0;
-    default_val.mask = false;
-    return default_val;
-  }
-}
+    default_val.alpha = 255; //this is so that samples outside of the cube are opaque
+    default_val.mask = false; //it's not really apparent how this works but if you
+    return default_val; //sample along the ray and do not hit the alpha threshold,
+  } //you want to have a black background that is weighted more heavily than what
+} //was actually sampled
 
 void Voraldo::set_data_by_vector_index(vec index, Vox set, bool draw, bool mask)
 {
