@@ -23,6 +23,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <stack>
 #include <map>
 
 //#include <bitset>

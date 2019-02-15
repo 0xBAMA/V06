@@ -67,7 +67,7 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
 
 //rotation matricies allowing rotation of the viewer's position
  	mat rotation_x_axis;
- //refernces [column][row]
+ //refernces [column][row] - sin and cos take arguments in radians
  		rotation_x_axis[0][0] = 1;                       rotation_x_axis[1][0] = 0;                      rotation_x_axis[2][0] = 0;
  		rotation_x_axis[0][1] = 0;                       rotation_x_axis[1][1] = std::cos(x_rot);        rotation_x_axis[2][1] = -1.0*std::sin(x_rot);
  		rotation_x_axis[0][2] = 0;                       rotation_x_axis[1][2] = std::sin(x_rot);        rotation_x_axis[2][2] = std::cos(x_rot);
@@ -113,6 +113,9 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  	Vox temp;
  	RGB	point_color;
 
+  std::stack<Vox> empty_voxtack;
+  std::stack<Vox> voxtack;
+
   int alpha_sum;
 
   unsigned char image_color[3];
@@ -124,12 +127,11 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
 
   double tmin, tmax;
 
- 	double tintersect; //for line/box intersection
-
  	for(double x = -(image_x_dimension/2-5); x <= (image_x_dimension/2-5); x++)
  		for(double y = -(image_y_dimension/2-5); y <= (image_y_dimension/2-5); y++)
  		{//init (reset)
  			line_box_intersection = false; alpha_sum = 0; //reset flag values for the new pixel
+      voxtack = empty_voxtack;                      //reset the stack by setting it equal to an empty version of itself
 
  			image_current_x = image_center_x + x; image_current_y = image_center_y + y; //x and y values for the new pixel
 
@@ -148,10 +150,11 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
 
  			if(line_box_intersection)
  			{//the ray hits the box, we will need to step through the box
- 				for(double z = tmin; z <= tmax; z+=0.5) //go from close intersection point to far intersection point
+ 				for(double z = tmin; z <= tmax; z+=0.5) //go from close intersection point (tmin) to far intersection point (tmax)
  				{
- 					vector_test_point = linalg::floor(vector_starting_point + z*vector_increment);
- 					temp = parent->get_data_by_vector_index(vector_test_point);
+ 					vector_test_point = linalg::floor(vector_starting_point + z*vector_increment);  //get the test point
+ 					temp = parent->get_data_by_vector_index(vector_test_point);                     //get the data at the test point
+          voxtack.push(temp);                                                             //push the data onto the stack
 
           alpha_sum += temp.alpha;
 
