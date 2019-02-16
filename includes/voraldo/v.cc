@@ -111,7 +111,7 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  	vec block_max = vec(block_xdim,block_ydim,block_zdim);
 
  	Vox temp;
- 	RGB	point_color;
+ 	RGB	curr_color;
 
   std::stack<Vox> empty_voxtack;
   std::stack<Vox> voxtack;
@@ -120,18 +120,20 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
 
   unsigned char image_color[3];
 
- 	bool line_box_intersection;
+ 	bool line_box_intersection, color_set;
 
  	double t0 = 0;
  	double t1 = 9999;
 
   double tmin, tmax;
+  double temp_alpha, curr_alpha;
 
  	for(double x = -(image_x_dimension/2-5); x <= (image_x_dimension/2-5); x++)
  		for(double y = -(image_y_dimension/2-5); y <= (image_y_dimension/2-5); y++)
  		{//init (reset)
- 			line_box_intersection = false; alpha_sum = 0; //reset flag values for the new pixel
-      voxtack = empty_voxtack;                      //reset the stack by setting it equal to an empty version of itself
+ 			line_box_intersection = false; alpha_sum = 0; color_set = false;    //reset flag values for the new pixel
+      curr_alpha = 1.0; curr_color.red = curr_color.green = curr_color.blue = 0;
+      voxtack = empty_voxtack;                                           //reset the stack by setting it equal to an empty version of itself
 
  			image_current_x = image_center_x + x; image_current_y = image_center_y + y; //x and y values for the new pixel
 
@@ -154,23 +156,42 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  				{
  					vector_test_point = linalg::floor(vector_starting_point + z*vector_increment);  //get the test point
  					temp = parent->get_data_by_vector_index(vector_test_point);                     //get the data at the test point
-          voxtack.push(temp);                                                             //push the data onto the stack
-
           alpha_sum += temp.alpha;
+
+          voxtack.push(temp);                                                             //push the data onto the stack
 
           if(alpha_sum >= 255)
           {
             break;
           }
- 				}
+ 				}//end for (z)
         //the for loop is completed, now process the stack
 
+        if(alpha_sum == 0 || voxtack.empty()) //this is a weird condition to end up in, but just in case
+        {
+          img.draw_point(image_current_x,image_current_y,black);
+          color_set = true;
+        }
+
+
+
+        while(!voxtack.empty())
+        {//process the stack - math is from https://en.wikipedia.org/wiki/Alpha_compositing
+          temp = voxtack.top(); voxtack.pop();
+          temp_alpha = temp.alpha / 255;
+
+        }//end while (stack processing)
+
+        if(!color_set)
+        {//set the image color based on the computed color
+
+        }
  			}
  			else //I saw a ray that did not hit the box, I want to paint it black
  			{
  				img.draw_point(image_current_x,image_current_y,black);
  			}
- 		}
+ 		}//end for (x and y)
 
  	img.save_bmp(filename.c_str());
 }
