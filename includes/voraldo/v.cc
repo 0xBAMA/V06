@@ -133,13 +133,16 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  		for(double y = -(image_y_dimension/2-5); y <= (image_y_dimension/2-5); y++)
  		{//init (reset)
  			line_box_intersection = false; alpha_sum = 0; color_set = false;    //reset flag values for the new pixel
-      curr_alpha = 1.0; curr_color.red = curr_color.green = curr_color.blue = 0;
+
+      curr_alpha = 1.0; curr_color.red = curr_color.green = curr_color.blue = 0; //this is used to process the alpha
+
       voxtack = empty_voxtack;                                           //reset the stack by setting it equal to an empty stack
 
  			image_current_x = image_center_x + x; image_current_y = image_center_y + y; //x and y values for the new pixel
 
  			// if(perspective == true) //this gets added inside the loop - note that the linetest will have to consider the perspective corrected ray
  			// 	vector_increment_perspective = vector_increment + x*0.1*cam_right - y*0.1*cam_up;
+      //orthogonal display will have vector increment equal for all pixels
 
  			vector_starting_point = cam_position + x*cam_up + y*cam_right;
 
@@ -168,26 +171,33 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  				}//end for (z)
         //the for loop is completed, now process the stack
 
-        if(alpha_sum == 0 || voxtack.empty()) //this is a weird condition to end up in, but just in case
+        if(alpha_sum == 0 || voxtack.empty()) //this might be a weird condition to end up in, but just in case
         {
           img.draw_point(image_current_x,image_current_y,black);
           color_set = true;
         }
 
 
-
-        while(!voxtack.empty()&&!color_set) //skip if there is no color data
-        {//process the stack - math is from https://en.wikipedia.org/wiki/Alpha_compositing
-          temp = voxtack.top(); voxtack.pop();
-          temp_alpha = temp.alpha / 255;          //map alpha to a range between 0 and 1
-
-
-
-        }//end while (stack processing)
-
         if(!color_set)
-        {//set the image color based on the computed color
+        {
+          while(!voxtack.empty()) //skip this loop if there is no color data, or if the color has already been set
+          {//process the stack - math is from https://en.wikipedia.org/wiki/Alpha_compositing
+            temp = voxtack.top(); voxtack.pop();
+            temp_alpha = temp.alpha / 255;          //map the alpha value to a range between 0 and 1
 
+            curr_color.red = ((parent->palette[temp.state].red * temp_alpha) + (curr_color.red * curr_alpha * (1-temp_alpha)))/(temp_alpha + curr_alpha*(1-temp_alpha));
+            curr_color.green = ((parent->palette[temp.state].green * temp_alpha) + (curr_color.green * curr_alpha * (1-temp_alpha)))/(temp_alpha + curr_alpha*(1-temp_alpha));
+            curr_color.blue = ((parent->palette[temp.state].blue * temp_alpha) + (curr_color.blue * curr_alpha * (1-temp_alpha)))/(temp_alpha + curr_alpha*(1-temp_alpha));
+
+            curr_alpha = temp_alpha + curr_alpha * (1-temp_alpha);
+          }//end while (stack processing)
+
+        //now set the image color based on the computed color
+          image_color[0] = curr_color.red;
+          image_color[1] = curr_color.green;
+          image_color[2] = curr_color.blue;
+
+          img.draw_point(image_current_x,image_current_y,image_color);
         }
  			}
  			else //I saw a ray that did not hit the box, I want to paint it black
