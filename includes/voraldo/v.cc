@@ -189,7 +189,7 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
             image_color[2] = temp_color.blue;
 
             img.draw_point(image_current_x,image_current_y,image_color,temp_alpha); //draw the point, with opacity set by the alpha values
-          }//end while (stack processing)
+          }//end while (stack processing) - this needs more work - test how tthe opacity works in the Cimg library
         }
  			}
  			else //I saw a ray that did not hit the box, I want to paint it black
