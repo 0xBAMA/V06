@@ -169,28 +169,24 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  				}//end for (z)
         //the for loop is completed, now process the stack
 
-        if(alpha_sum == 0 || voxtack.empty()) //this might be a weird condition to end up in, but just in case
+        img.draw_point(image_current_x,image_current_y,black);
+
+        while(!voxtack.empty()) //skip this loop if there is no data
         {
-          img.draw_point(image_current_x,image_current_y,black);
-          color_set = true;
-        }
+          temp = voxtack.top(); voxtack.pop();
+          temp_alpha = temp.alpha / 256;          //map the alpha value to a range between 0 and 1
 
+          temp_color = parent->palette[temp.state];
 
-        if(!color_set)
-        {
-          while(!voxtack.empty()) //skip this loop if there is no color data, or if the color has already been set
-          {//process the stack - math is from https://en.wikipedia.org/wiki/Alpha_compositing
-            temp = voxtack.top(); voxtack.pop();
-            temp_alpha = temp.alpha / 256;          //map the alpha value to a range between 0 and 1
-            temp_color = parent->palette[temp.state];
+          image_color[0] = temp_color.red;
+          image_color[1] = temp_color.green;
+          image_color[2] = temp_color.blue;
 
-            image_color[0] = temp_color.red;
-            image_color[1] = temp_color.green;
-            image_color[2] = temp_color.blue;
-
+          if(temp_alpha != 0 && image_color != black)
+          {
             img.draw_point(image_current_x,image_current_y,image_color,temp_alpha); //draw the point, with opacity set by the alpha values
-          }//end while (stack processing) - this needs more work - test how tthe opacity works in the Cimg library
-        }
+          }
+        }//end while (stack processing) - this needs more work - test how tthe opacity works in the Cimg library
  			}
  			else //I saw a ray that did not hit the box, I want to paint it black
  			{
