@@ -187,7 +187,7 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  			}
  		}//end for (x and y)
 
- 	img.save_bmp(filename.c_str());
+ 	img.save_png(filename.c_str());
 }
 
 
