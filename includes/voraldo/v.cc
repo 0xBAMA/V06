@@ -111,8 +111,8 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  	vec block_max = vec(block_xdim,block_ydim,block_zdim);
 
  	Vox temp;
- 	RGB	temp_color, curr_color;
-  double temp_alpha, curr_alpha;
+ 	RGB	temp_color;
+  double temp_alpha;
 
   std::stack<Vox> empty_voxtack;
   std::stack<Vox> voxtack;
@@ -133,8 +133,6 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  		for(double y = -(image_y_dimension/2-5); y <= (image_y_dimension/2-5); y++)
  		{//init (reset)
  			line_box_intersection = false; alpha_sum = 0; color_set = false;    //reset flag values for the new pixel
-
-      curr_alpha = 1.0; curr_color.red = curr_color.green = curr_color.blue = 0; //this is used to process the alpha
 
       voxtack = empty_voxtack;                                           //reset the stack by setting it equal to an empty stack
 
@@ -183,21 +181,15 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
           while(!voxtack.empty()) //skip this loop if there is no color data, or if the color has already been set
           {//process the stack - math is from https://en.wikipedia.org/wiki/Alpha_compositing
             temp = voxtack.top(); voxtack.pop();
-            temp_alpha = temp.alpha / 255;          //map the alpha value to a range between 0 and 1
+            temp_alpha = temp.alpha / 256;          //map the alpha value to a range between 0 and 1
+            temp_color = parent->palette[temp.state];
 
-            curr_color.red = ((parent->palette[temp.state].red * temp_alpha) + (curr_color.red * curr_alpha * (1-temp_alpha)))/(temp_alpha + curr_alpha*(1-temp_alpha));
-            curr_color.green = ((parent->palette[temp.state].green * temp_alpha) + (curr_color.green * curr_alpha * (1-temp_alpha)))/(temp_alpha + curr_alpha*(1-temp_alpha));
-            curr_color.blue = ((parent->palette[temp.state].blue * temp_alpha) + (curr_color.blue * curr_alpha * (1-temp_alpha)))/(temp_alpha + curr_alpha*(1-temp_alpha));
+            image_color[0] = temp_color.red;
+            image_color[1] = temp_color.green;
+            image_color[2] = temp_color.blue;
 
-            curr_alpha = temp_alpha + curr_alpha * (1-temp_alpha);
+            img.draw_point(image_current_x,image_current_y,image_color,temp_alpha); //draw the point, with opacity set by the alpha values
           }//end while (stack processing)
-
-        //now set the image color based on the computed color
-          image_color[0] = curr_color.red;
-          image_color[1] = curr_color.green;
-          image_color[2] = curr_color.blue;
-
-          img.draw_point(image_current_x,image_current_y,image_color);
         }
  			}
  			else //I saw a ray that did not hit the box, I want to paint it black
