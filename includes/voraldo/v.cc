@@ -111,7 +111,8 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  	vec block_max = vec(block_xdim,block_ydim,block_zdim);
 
  	Vox temp;
- 	RGB	temp_color;
+ 	RGB	temp_color, curr_color;
+  double temp_alpha, curr_alpha;
 
   std::stack<Vox> empty_voxtack;
   std::stack<Vox> voxtack;
@@ -130,6 +131,7 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  		for(double y = -(image_y_dimension/2-5); y <= (image_y_dimension/2-5); y++)
  		{//init (reset)
  			line_box_intersection = false; color_set = false;    //reset flag values for the new pixel
+      curr_alpha = 1.0; curr_color.red = 0; curr_color.green = 0; curr_color.blue = 0;
 
       voxtack = empty_voxtack;                             //reset the stack by setting it equal to an empty stack
 
