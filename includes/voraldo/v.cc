@@ -4,7 +4,7 @@ using std::cout;
 using std::endl;
 
 
-Vox get_vox(unsigned char state, unsigned char alpha, bool mask)
+Vox get_vox(unsigned char state, float alpha, bool mask)
 {
   Vox temp;
 
@@ -112,12 +112,9 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
 
  	Vox temp;
  	RGB	temp_color;
-  double temp_alpha;
 
   std::stack<Vox> empty_voxtack;
   std::stack<Vox> voxtack;
-
-  int alpha_sum;
 
   unsigned char image_color[3];
 
@@ -132,15 +129,15 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  	for(double x = -(image_x_dimension/2-5); x <= (image_x_dimension/2-5); x++)
  		for(double y = -(image_y_dimension/2-5); y <= (image_y_dimension/2-5); y++)
  		{//init (reset)
- 			line_box_intersection = false; alpha_sum = 0; color_set = false;    //reset flag values for the new pixel
+ 			line_box_intersection = false; color_set = false;    //reset flag values for the new pixel
 
-      voxtack = empty_voxtack;                                           //reset the stack by setting it equal to an empty stack
+      voxtack = empty_voxtack;                             //reset the stack by setting it equal to an empty stack
 
  			image_current_x = image_center_x + x; image_current_y = image_center_y + y; //x and y values for the new pixel
 
  			// if(perspective == true) //this gets added inside the loop - note that the linetest will have to consider the perspective corrected ray
  			// 	vector_increment_perspective = vector_increment + x*0.1*cam_right - y*0.1*cam_up;
-      //orthogonal display will have vector increment equal for all pixels
+      //orthogonal display will have vector_increment equal for all pixels
 
  			vector_starting_point = cam_position + x*cam_up + y*cam_right;
 
@@ -158,23 +155,17 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  				{
  					vector_test_point = linalg::floor(vector_starting_point + z*vector_increment);  //get the test point
  					temp = parent->get_data_by_vector_index(vector_test_point);                     //get the data at the test point
-          alpha_sum += temp.alpha;
-
-          voxtack.push(temp);                                                             //push the data onto the stack
-
-          if(alpha_sum >= 255)
+          if(temp.state != 0)
           {
-            break;
-          }
+            voxtack.push(temp);
+          }                                                           //push the data onto the stack
  				}//end for (z)
         //the for loop is completed, now process the stack
 
         img.draw_point(image_current_x,image_current_y,black);
-
-        while(!voxtack.empty()) //skip this loop if there is no data
+        while(!voxtack.empty())
         {
           temp = voxtack.top(); voxtack.pop();
-          temp_alpha = temp.alpha / 256;          //map the alpha value to a range between 0 and 1
 
           temp_color = parent->palette[temp.state];
 
@@ -182,11 +173,11 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
           image_color[1] = temp_color.green;
           image_color[2] = temp_color.blue;
 
-          if(temp_alpha != 0 && image_color != black)
+          if(temp.alpha != 0.0)
           {
-            img.draw_point(image_current_x,image_current_y,image_color,temp_alpha); //draw the point, with opacity set by the alpha values
+            img.draw_point(image_current_x,image_current_y,image_color,temp.alpha);
           }
-        }//end while (stack processing) - this needs more work - test how tthe opacity works in the Cimg library
+        }
  			}
  			else //I saw a ray that did not hit the box, I want to paint it black
  			{
@@ -231,7 +222,7 @@ void Voraldo_Draw::init_block(vec dimensions)
  {
   parent->data[i].mask = false;
   parent->data[i].state = 0;
-  parent->data[i].alpha = 0;
+  parent->data[i].alpha = 0.0;
  }
 }
 
@@ -286,7 +277,7 @@ void Voraldo_Draw::mask_by_state(unsigned char s)
  }
 }
 
-void Voraldo_Draw::draw_noise(bool draw, unsigned char alpha, bool mask)
+void Voraldo_Draw::draw_noise(bool draw, float alpha, bool mask)
 {
   for(int i = 0; i < parent->num_cells; i++)
   {
@@ -956,7 +947,7 @@ Vox Voraldo::get_data_by_vector_index(vec index)
   {
     Vox default_val;
     default_val.state = 0;
-    default_val.alpha = 0;
+    default_val.alpha = 0.0;
     default_val.mask = false;
     return default_val;
   }
@@ -978,6 +969,7 @@ void Voraldo::set_data_by_vector_index(vec index, Vox set, bool draw, bool mask)
    if(draw)
    {
     data[data_index].state = set.state;
+    data[data_index].alpha = set.alpha;
    }
    data[data_index].mask = set.mask;
   }

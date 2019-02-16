@@ -47,7 +47,7 @@ struct RGB{
 
 struct Vox{
 	unsigned char state;
-	unsigned char alpha; //this is a better way to handle alpha, I think
+	float alpha;
 	bool mask;
 
 	//unsigned char lighting_intensity;
@@ -57,7 +57,7 @@ struct Vox{
 	//data for zero valued cells.
 };
 
-Vox get_vox(unsigned char state, unsigned char alpha, bool mask);
+Vox get_vox(unsigned char state, float alpha, bool mask);
 
 class Voraldo_IO{
 public:
@@ -126,7 +126,7 @@ public:
 //draw and mask are exclusive, you might say independent of one another - i.e.
 //	these functions can be used to mask without drawing if desired
 
-	void draw_noise(bool draw=true, unsigned char alpha=255, bool mask=false);
+	void draw_noise(bool draw=true, float alpha=1.0, bool mask=false);
 	//replaces the noisefill argument for the init_block
 
 	void draw_point(vec point, Vox set, bool draw=true, bool mask=false);

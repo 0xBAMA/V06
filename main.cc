@@ -28,8 +28,9 @@ int main()
   main_block = new Voraldo();
   main_block->draw->init_block(dimensions);
 
-  main_block->draw->draw_sphere(vec(floor(init_x/2),floor(init_y/2),floor(init_z/2)),25,get_vox(2,5,false),true,false);
-  main_block->draw->draw_sphere(vec(floor(init_x/2),floor(init_y/2),floor(init_z/2)+10),20,get_vox(1,255,false),true,false);
+  main_block->draw->draw_sphere(vec(floor(init_x/2),floor(init_y/2),floor(init_z/2)),25,get_vox(2,0.015,false),true,false);
+  main_block->draw->draw_sphere(vec(floor(init_x/2),floor(init_y/2),floor(init_z/2)+10),20,get_vox(1,1.0,false),true,false);
+  main_block->draw->draw_noise(true,0.1);
   //main_block->draw->draw_sphere(vec(floor(init_x/2),floor(init_y/2),floor(init_z/2)+150),20,get_vox(1,255,false),true,false);
 
 
