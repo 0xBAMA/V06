@@ -163,6 +163,15 @@ public:
 		//cases and the results will be less than predictable.
 };
 
+class Voraldo_Lighting{
+public:
+	Voraldo *parent;
+
+	Voraldo_Lighting(Voraldo *p);
+	~Voraldo_Lighting();
+
+};
+
 
 class Voraldo{
 //top level class - instantiates IO and Draw classes
@@ -172,6 +181,7 @@ public:
 
 		Voraldo_IO *io;
 		Voraldo_Draw *draw;
+		Voraldo_Lighting *lighting;
 
 		Vox *data;
 		RGB *palette;

@@ -139,7 +139,7 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
 
  			// if(perspective == true) //this gets added inside the loop - note that the linetest will have to consider the perspective corrected ray
  			// 	vector_increment_perspective = vector_increment + x*0.1*cam_right - y*0.1*cam_up;
-      //orthogonal display will have vector_increment equal for all pixels
+      //orthogonal display will have vector_increment equal for all pixels i.e. no divergence
 
  			vector_starting_point = cam_position + x*cam_up + y*cam_right;
 
@@ -160,7 +160,7 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
           if(temp.state != 0)
           {
             voxtack.push(temp);
-          }                                                           //push the data onto the stack
+          }
  				}//end for (z)
         //the for loop is completed, now process the stack
 
@@ -797,13 +797,22 @@ void Voraldo_Draw::draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec
  	}
 }
 
+Voraldo_Lighting::Voraldo_Lighting(Voraldo *p)
+{
+ parent = p;
+}
 
+Voraldo_Lighting::~Voraldo_Lighting()
+{
+
+}
 
 //---------------------------
 Voraldo::Voraldo()
 {
   io = new Voraldo_IO(this);
   draw = new Voraldo_Draw(this);
+  lighting = new Voraldo_Lighting(this);
 
   palette = new RGB[256];
   //need to fill in all the data for colors
@@ -972,8 +981,9 @@ void Voraldo::set_data_by_vector_index(vec index, Vox set, bool draw, bool mask)
    {
     data[data_index].state = set.state;
     data[data_index].alpha = set.alpha;
+    data[data_index].mask = set.mask;
    }
-   data[data_index].mask = set.mask;
+    data[data_index].mask = mask; //this takes precedence over the Vox value of mask
   }
 }
 
