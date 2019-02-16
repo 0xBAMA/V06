@@ -177,13 +177,13 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
 
           if(temp.alpha != 0.0)
           {
-            img.draw_point(image_current_x,image_current_y,image_color,temp.alpha);
+              img.draw_point(image_current_x,image_current_y,image_color,temp.alpha);
           }
         }
  			}
  			else //I saw a ray that did not hit the box, I want to paint it black
  			{
- 				img.draw_point(image_current_x,image_current_y,black);
+        img.draw_point(image_current_x,image_current_y,black);
  			}
  		}//end for (x and y)
 
