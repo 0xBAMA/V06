@@ -17,6 +17,28 @@ Vox get_vox(unsigned char state, float alpha, bool mask)
 
 
 //---------------------------
+Voraldo_Lighting::Voraldo_Lighting(Voraldo *p)
+{
+ parent = p;
+}
+
+Voraldo_Lighting::~Voraldo_Lighting()
+{
+
+}
+
+void Voraldo_Lighting::apply_directional_lighting(float initial_intensity, double x_rot, double y_rot, double z_rot, float divergence)
+{
+
+}
+
+void Voraldo_Lighting::apply_ambient_occlusion()
+{
+
+}
+
+
+//---------------------------
 Voraldo_IO::Voraldo_IO(Voraldo *p)
 {
  parent = p;
@@ -137,8 +159,11 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
 
  			image_current_x = image_center_x + x; image_current_y = image_center_y + y; //x and y values for the new pixel
 
- 			// if(perspective == true) //this gets added inside the loop - note that the linetest will have to consider the perspective corrected ray
- 			// 	vector_increment_perspective = vector_increment + x*0.1*cam_right - y*0.1*cam_up;
+ 			if(perspective == true) //this gets added inside the loop - note that the linetest will have to consider the perspective corrected ray
+      {//this isn't working very well
+        vector_increment = 0.5*normalize(-1.0*(cam_position-d_center));
+ 				vector_increment = vector_increment + x*0.001*cam_right - y*0.001*cam_up;
+      }
       //orthogonal display will have vector_increment equal for all pixels i.e. no divergence
 
  			vector_starting_point = cam_position + x*cam_up + y*cam_right;
@@ -797,15 +822,6 @@ void Voraldo_Draw::draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec
  	}
 }
 
-Voraldo_Lighting::Voraldo_Lighting(Voraldo *p)
-{
- parent = p;
-}
-
-Voraldo_Lighting::~Voraldo_Lighting()
-{
-
-}
 
 //---------------------------
 Voraldo::Voraldo()

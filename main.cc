@@ -61,7 +61,12 @@ int main()
   main_block->draw->draw_noise(true,0.1);
   //main_block->draw->draw_sphere(vec(floor(init_x/2),floor(init_y/2),floor(init_z/2)+150),20,get_vox(1,255,false),true,false);
 
-  main_block->io->display("new_output.png", 3.14, 3.14/3.0, 3.14/3.0, 0.4, false);
+
+//  for(int i = 0; i <= 314; i += 1){
+    main_block->io->display("new_output.png", 3.14, 3.14/3.0, 3.14/3.0, 0.4, false);
+    //std::cout << i << std::endl;
+    //main_block->io->display("animation/new_output"+ std::to_string(i) +".png", 0, 0.01*i*(3.14/3.0), 0, 0.2, false);
+//  }
 
   return 0;
 }

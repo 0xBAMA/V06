@@ -47,7 +47,7 @@ struct RGB{
 
 struct Vox{
 	unsigned char state;
-	float alpha;
+	float alpha,lighting_intensity;
 	bool mask;
 
 	//unsigned char lighting_intensity;
@@ -59,6 +59,19 @@ struct Vox{
 
 Vox get_vox(unsigned char state, float alpha, bool mask);
 
+class Voraldo_Lighting{
+public:
+	Voraldo *parent;
+
+	Voraldo_Lighting(Voraldo *p);
+	~Voraldo_Lighting();
+
+	void apply_directional_lighting(float initial_intensity, double x_rot, double y_rot, double z_rot, float divergence);
+	void apply_ambient_occlusion();
+
+};
+
+
 class Voraldo_IO{
 public:
 	Voraldo *parent;
@@ -66,7 +79,10 @@ public:
 	Voraldo_IO(Voraldo *p);
 	~Voraldo_IO();
 
-	void load(){return;}
+	void load_model_from_file(std::string filename); //use the JSON formatting to make shit easier to draw
+	//it isn't the best method to fill main with a bunch of calls to the draw function
+
+	void load(){return;} //this pair of functions still need to be figured out
 	void save(){return;}
 
 	void display(std::string filename, double x_rot, double y_rot, double z_rot, double scale, bool perspective);
@@ -162,16 +178,6 @@ public:
 		//the same plane - there the algorithm has to choose between two ambigous
 		//cases and the results will be less than predictable.
 };
-
-class Voraldo_Lighting{
-public:
-	Voraldo *parent;
-
-	Voraldo_Lighting(Voraldo *p);
-	~Voraldo_Lighting();
-
-};
-
 
 class Voraldo{
 //top level class - instantiates IO and Draw classes
