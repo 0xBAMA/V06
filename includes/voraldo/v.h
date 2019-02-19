@@ -57,7 +57,7 @@ struct Vox{
 	//data for zero valued cells.
 };
 
-Vox get_vox(unsigned char state, float alpha, bool mask);
+Vox get_vox(unsigned char state, float alpha, float lighting_intensity, bool mask);
 
 class Voraldo_Lighting{
 public:
@@ -142,7 +142,7 @@ public:
 //draw and mask are exclusive, you might say independent of one another - i.e.
 //	these functions can be used to mask without drawing if desired
 
-	void draw_noise(bool draw=true, float alpha=1.0, bool mask=false);
+	void draw_noise(bool draw=true, float alpha=1.0, float lighting_intensity=1.0, bool mask=false);
 	//replaces the noisefill argument for the init_block
 
 	void draw_point(vec point, Vox set, bool draw=true, bool mask=false);
@@ -202,7 +202,7 @@ public:
 		Vox get_data_by_vector_index(vec index);
 		//return the state value for the selected index
 
-		void set_data_by_vector_index(vec index, Vox set, bool draw, bool mask);
+		void set_data_by_vector_index(vec index, Vox set, bool draw, bool mask, bool force = false);
 		//set the data at the selected index, also setting the mask if the
 		//mask variable is true
 

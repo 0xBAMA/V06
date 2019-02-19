@@ -3,13 +3,29 @@
 using std::cout;
 using std::endl;
 
+float clamp(float value, float low, float high)
+{
+  if(value > high)
+  {
+    return high;
+  }
+  else if(value < low)
+  {
+    return low;
+  }
+  else
+  {
+    return value;
+  }
+}
 
-Vox get_vox(unsigned char state, float alpha, bool mask)
+Vox get_vox(unsigned char state, float alpha, float lighting_intensity, bool mask)
 {
   Vox temp;
 
   temp.state = state;
   temp.alpha = alpha;
+  temp.lighting_intensity = lighting_intensity;
   temp.mask = mask;
 
   return temp;
@@ -34,7 +50,42 @@ void Voraldo_Lighting::apply_directional_lighting(float initial_intensity, doubl
 
 void Voraldo_Lighting::apply_ambient_occlusion()
 {
+  vec index;
+  Vox temp;
+  double sum;
+  int tot;
 
+  for(int i = 0; i < parent->x_dim; i++)
+  {
+   for(int j = 0; j < parent->y_dim; j++)
+   {
+     for(int k = 0; k < parent->z_dim; k++)
+     {
+       sum = 0;
+       tot = 0;
+       index = vec(i,j,k);
+
+
+       //this is crude - consider other methods?
+       for (int x = -3; x <= 3; x++)
+       {
+         for (int y = -3; y <= 3; y++)
+         {
+           for (int z = -3; z <= 3; z++)
+           {
+             temp = parent->get_data_by_vector_index(vec(i+x,j+y,k+z));
+             sum += temp.alpha;
+             tot++;
+           }
+         }
+       }
+       //do some shit to come up with a number for lighting_intensity
+       temp = parent->get_data_by_vector_index(index);
+       temp = get_vox(temp.state, temp.alpha, clamp(temp.lighting_intensity*(1-(sum/tot)),temp.lighting_intensity*0.35,1)/*lighting intensity*/, temp.mask);
+       parent->set_data_by_vector_index(index,temp,false,false,true);
+      }
+    }
+  }
 }
 
 
@@ -196,9 +247,9 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
 
           temp_color = parent->palette[temp.state];
 
-          image_color[0] = temp_color.red;
-          image_color[1] = temp_color.green;
-          image_color[2] = temp_color.blue;
+          image_color[0] = temp_color.red   * (temp.lighting_intensity);
+          image_color[1] = temp_color.green * (temp.lighting_intensity);
+          image_color[2] = temp_color.blue  * (temp.lighting_intensity);
 
           if(temp.alpha != 0.0)
           {
@@ -304,17 +355,18 @@ void Voraldo_Draw::mask_by_state(unsigned char s)
  }
 }
 
-void Voraldo_Draw::draw_noise(bool draw, float alpha, bool mask)
+void Voraldo_Draw::draw_noise(bool draw, float alpha, float lighting_intensity, bool mask)
 {
   for(int i = 0; i < parent->num_cells; i++)
   {
-     if(std::rand()%696 == 69)
+     if(std::rand()%696 == 69 && std::rand()%696 < 100)
      {
        if(!parent->data[i].mask)
        {
-          parent->data[i].state = std::rand()%255;//this is a little different
+          parent->data[i].state = (std::rand()%30)+1;//this is a little different
           parent->data[i].alpha = alpha;
           parent->data[i].mask = mask;
+          parent->data[i].lighting_intensity = lighting_intensity;
        }
      }
   }
@@ -980,7 +1032,7 @@ Vox Voraldo::get_data_by_vector_index(vec index)
   }
 }
 
-void Voraldo::set_data_by_vector_index(vec index, Vox set, bool draw, bool mask)
+void Voraldo::set_data_by_vector_index(vec index, Vox set, bool draw, bool mask, bool force)
 {
  int data_index = index[2]*y_dim*x_dim + index[1]*x_dim + index[0];
 
@@ -991,16 +1043,21 @@ void Voraldo::set_data_by_vector_index(vec index, Vox set, bool draw, bool mask)
  bool point_valid = x_valid && y_valid && z_valid;
 
  if(point_valid)
+ {
   if(!data[data_index].mask)
   {
    if(draw)
    {
-    data[data_index].state = set.state;
-    data[data_index].alpha = set.alpha;
-    data[data_index].mask = set.mask;
+    data[data_index] = set;
    }
     data[data_index].mask = mask; //this takes precedence over the Vox value of mask
   }
+
+  if(force)
+  {
+    data[data_index] = set;
+  }
+ }
 }
 
 bool Voraldo::planetest(vec plane_point, vec plane_normal, vec test_point)
