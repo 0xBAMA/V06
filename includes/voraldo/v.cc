@@ -45,7 +45,107 @@ Voraldo_Lighting::~Voraldo_Lighting()
 
 void Voraldo_Lighting::apply_directional_lighting(float initial_intensity, double x_rot, double y_rot, double z_rot, float divergence)
 {
+  /*
 
+    herein lies the new directional lighting scheme - it operates very similarly to the display function.
+    "divergence" here maps to perspective in the display function
+
+  */
+  int image_x_dimension = 1919;//for the time being, call it 1080p
+ 	int image_y_dimension = 1079;
+
+  int block_xdim = parent->x_dim;                 int block_ydim = parent->y_dim;                 int block_zdim = parent->z_dim;
+ 	int block_xdim_squared = block_xdim*block_xdim; int block_ydim_squared = block_ydim*block_ydim;	int block_zdim_squared = block_zdim*block_zdim;
+
+ 	vec d_center = vec(block_xdim/2.0,block_ydim/2.0,block_zdim/2.0);
+
+//rotation matricies allowing rotation of the viewer's position
+ 	mat rotation_x_axis;
+ //refernces [column][row] - sin and cos take arguments in radians
+ 		rotation_x_axis[0][0] = 1;                       rotation_x_axis[1][0] = 0;                      rotation_x_axis[2][0] = 0;
+ 		rotation_x_axis[0][1] = 0;                       rotation_x_axis[1][1] = std::cos(x_rot);        rotation_x_axis[2][1] = -1.0*std::sin(x_rot);
+ 		rotation_x_axis[0][2] = 0;                       rotation_x_axis[1][2] = std::sin(x_rot);        rotation_x_axis[2][2] = std::cos(x_rot);
+
+ 	mat rotation_y_axis;
+ 		rotation_y_axis[0][0] = std::cos(y_rot);         rotation_y_axis[1][0] = 0;                      rotation_y_axis[2][0] = std::sin(y_rot);
+ 		rotation_y_axis[0][1] = 0;                       rotation_y_axis[1][1] = 1;                      rotation_y_axis[2][1] = 0;
+ 		rotation_y_axis[0][2] = -1.0*std::sin(y_rot);    rotation_y_axis[1][2] = 0;                      rotation_y_axis[2][2] = std::cos(y_rot);
+
+ 	mat rotation_z_axis;
+ 		rotation_z_axis[0][0] = std::cos(z_rot);         rotation_z_axis[1][0] = -1.0*std::sin(z_rot);   rotation_z_axis[2][0] = 0;
+ 		rotation_z_axis[0][1] = std::sin(z_rot);         rotation_z_axis[1][1] = std::cos(z_rot);        rotation_z_axis[2][1] = 0;
+ 		rotation_z_axis[0][2] = 0;                       rotation_z_axis[1][2] = 0;                      rotation_z_axis[2][2] = 1;
+
+//the three vectors defining the x,y,z of "display space" i.e. screen space, used for positioning camera in world space
+ 	vec d_xvec = mul(rotation_x_axis,mul(rotation_y_axis,mul(rotation_z_axis,vec(1,0,0))));
+ 	vec d_yvec = mul(rotation_x_axis,mul(rotation_y_axis,mul(rotation_z_axis,vec(0,1,0))));
+ 	vec d_zvec = mul(rotation_x_axis,mul(rotation_y_axis,mul(rotation_z_axis,vec(0,0,1))));
+
+//this is somewhat abstract - starting from the center of the block, define a sphere
+//this sphere has a radius such that the corners of the box are on the surface of the sphere
+//multiplying this radius by some amount >1 will move us out from there, a sphere with the same center
+//the camera is then located somewhere on this sphere, in a position determined by the use of the rotation matricies
+
+ 	//tip radius is the radius of the sphere that touches the tips of the block's corners
+ 	double tip_radius = std::sqrt(block_xdim_squared+block_ydim_squared+block_zdim_squared)/2.0;
+ 	double max_dist = 2*2.2*tip_radius;
+ 	double min_dist = 0.2*tip_radius;
+ 	//factor of two is for the incremental step of length 0.5
+ 	//factor of 2.2 is for the tip radius plus the camera sphere radius, 1+1.2
+
+ 	vec cam_position = d_center - 1.2*tip_radius*d_yvec; vec cam_up = scale*d_zvec; vec cam_right = scale*d_xvec;
+
+ 	int image_center_x = (image_x_dimension-1)/2; int image_current_x;
+ 	int image_center_y = (image_y_dimension-1)/2; int image_current_y;
+
+ 	vec vector_starting_point,vector_test_point;
+ 	vec vector_increment = 0.5*normalize(-1.0*(cam_position-d_center));
+
+ 	vec block_min = vec(0,0,0);
+ 	vec block_max = vec(block_xdim,block_ydim,block_zdim);
+
+  bool line_box_intersection;
+  Vox temp;
+
+  double t0 = 0;
+  double t1 = 9999;
+
+ double tmin, tmax;
+
+  for(double x = -(image_x_dimension/2-5); x <= (image_x_dimension/2-5); x++)
+    for(double y = -(image_y_dimension/2-5); y <= (image_y_dimension/2-5); y++)
+    {//init (reset)
+      line_box_intersection = false;   //reset flag values for the new pixel
+
+      image_current_x = image_center_x + x; image_current_y = image_center_y + y; //x and y values for the new pixel
+
+      if(perspective == true) //this gets added inside the loop - note that the linetest will have to consider the perspective corrected ray
+      {//this isn't working very well
+        vector_increment = 0.5*normalize(-1.0*(cam_position-d_center));
+        vector_increment = vector_increment + x*0.001*cam_right - y*0.001*cam_up;
+      }
+      //orthogonal display will have vector_increment equal for all pixels i.e. no divergence
+      //figure out if the parametric line established by parameter z and
+      //	L = vector_starting_point + z*vector_increment
+      //intersects with the box established by (0,0,0) (x,y,z)
+      //i.e. block_min and block_max
+
+      //The goal here is to know whether or not there is data to sample behind any given pixel - this offers a significant speedup
+      line_box_intersection = parent->intersect_ray_bbox(block_min,block_max,vector_starting_point,vector_increment,tmin,tmax,t0,t1);
+
+      if(line_box_intersection)
+      {//the ray hits the box, we will need to step through the box
+        for(double z = tmin; z <= tmax; z+=0.5) //go from close intersection point (tmin) to far intersection point (tmax)
+        {
+          vector_test_point = linalg::floor(vector_starting_point + z*vector_increment);  //get the test point
+          temp = parent->get_data_by_vector_index(vector_test_point);                     //get the data at the test point
+          if(temp.state != 0)
+          {
+            //look at temp.alpha
+          }
+        }//end for (z)
+      }
+   }//end for (x and y)
 }
 
 void Voraldo_Lighting::apply_ambient_occlusion()

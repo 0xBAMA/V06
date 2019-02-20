@@ -1,5 +1,7 @@
 #include "../CImg.h"		//single-header library for image display and saving
-//License below
+//Cimg license - from Cimg.eu - CImg is a free, open-source library distributed
+//under the CeCILL-C (close to the GNU LGPL) or CeCILL (compatible with the GNU GPL)
+//licenses. It can be used in commercial applications.
 
 //IMPORTANT LINKS RE CIMG LIBRARY docs
 //http://cimg.eu/reference/group__cimg__overview.html
@@ -12,9 +14,7 @@
 #include "../linalg.h"      //single-header library for linear algebra (vectors)
 //Public Domain License
 
-//Cimg license - from Cimg.eu - CImg is a free, open-source library distributed
-//under the CeCILL-C (close to the GNU LGPL) or CeCILL (compatible with the GNU GPL)
-//licenses. It can be used in commercial applications.
+
 
 #include <cstdlib>
 #include <math.h>
