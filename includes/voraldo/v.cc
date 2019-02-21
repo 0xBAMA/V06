@@ -43,7 +43,7 @@ Voraldo_Lighting::~Voraldo_Lighting()
 
 }
 
-void Voraldo_Lighting::apply_directional_lighting(float initial_intensity, double x_rot, double y_rot, double z_rot, float divergence)
+void Voraldo_Lighting::apply_directional_lighting(float lighting_scale, double x_rot, double y_rot, double z_rot, float divergence)
 {
   /*
 
@@ -141,7 +141,12 @@ void Voraldo_Lighting::apply_directional_lighting(float initial_intensity, doubl
           temp = parent->get_data_by_vector_index(vector_test_point);                     //get the data at the test point
           if(temp.state != 0)
           {
-            //look at temp.alpha
+            //set lighting value of the cell, based upon the current lighting intensity, write it back to the array
+
+            //certain amount of light gets 'absorbed' - subtract the alpha value from the lighting intensity
+
+            //if the lighting intensity is now less than zero, break out of the for loop - there's no more light left
+
           }
         }//end for (z)
       }
