@@ -43,7 +43,7 @@ Voraldo_Lighting::~Voraldo_Lighting()
 
 }
 
-void Voraldo_Lighting::apply_directional_lighting(float lighting_scale, double x_rot, double y_rot, double z_rot, float divergence)
+void Voraldo_Lighting::apply_directional_lighting(float initial_intensity, double x_rot, double y_rot, double z_rot, float divergence)
 {
   /*
 
@@ -112,6 +112,8 @@ void Voraldo_Lighting::apply_directional_lighting(float lighting_scale, double x
 
  double tmin, tmax;
 
+ double alpha_sum; //this holds the value of the light ray
+
   for(double x = -(image_x_dimension/2-5); x <= (image_x_dimension/2-5); x++)
     for(double y = -(image_y_dimension/2-5); y <= (image_y_dimension/2-5); y++)
     {//init (reset)
@@ -135,6 +137,7 @@ void Voraldo_Lighting::apply_directional_lighting(float lighting_scale, double x
 
       if(line_box_intersection)
       {//the ray hits the box, we will need to step through the box
+        alpha_sum = 1.0;
         for(double z = tmin; z <= tmax; z+=0.5) //go from close intersection point (tmin) to far intersection point (tmax)
         {
           vector_test_point = linalg::floor(vector_starting_point + z*vector_increment);  //get the test point
@@ -142,11 +145,16 @@ void Voraldo_Lighting::apply_directional_lighting(float lighting_scale, double x
           if(temp.state != 0)
           {
             //set lighting value of the cell, based upon the current lighting intensity, write it back to the array
+            //the current lighting intensity is scaled by the input argument initial_intensity, and multiplied by alpha_sum
 
-            //certain amount of light gets 'absorbed' - subtract the alpha value from the lighting intensity
+                /*construct the new Vox here*/
+
+            //certain amount of light gets 'absorbed' by the cell, temp - subtract the alpha value from the alpha_sum
+            alpha_sum -= temp.alpha;
 
             //if the lighting intensity is now less than zero, break out of the for loop - there's no more light left
-
+            if(alpha_sum <= 0.0)
+              break;
           }
         }//end for (z)
       }
