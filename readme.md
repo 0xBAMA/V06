@@ -14,4 +14,13 @@ animation https://youtu.be/EKtUuCGlVo0
 ![screenshot](https://imgur.com/Jtmlqvs.png)
 
 
-#####implement simple directional lighting (based on the algorithm of the display function)
+#####implement simple directional lighting (based on the algorithm of the display function) ***[THAT'S DONE]***
+
+![screenshot](https://imgur.com/EqxLsjN)
+
+
+What next?
+
+Mitigate blockiness of voxels, in terms of artifacts produced in shadows, etc - figure out a spherical representation?
+
+Trees based on L-systems.

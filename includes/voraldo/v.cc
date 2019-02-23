@@ -19,7 +19,7 @@ float clamp(float value, float low, float high)
   }
 }
 
-Vox get_vox(unsigned char state, float alpha, float lighting_intensity, bool mask)
+Vox get_vox(unsigned char state, double alpha, float lighting_intensity, bool mask)
 {
   Vox temp;
 
@@ -43,7 +43,7 @@ Voraldo_Lighting::~Voraldo_Lighting()
 
 }
 
-void Voraldo_Lighting::apply_directional_lighting(float initial_intensity, double x_rot, double y_rot, double z_rot, float divergence)
+void Voraldo_Lighting::apply_directional_lighting(float initial_intensity, double x_rot, double y_rot, double z_rot, double scale, bool divergence)
 {
   /*
 
@@ -51,8 +51,10 @@ void Voraldo_Lighting::apply_directional_lighting(float initial_intensity, doubl
     "divergence" here maps to perspective in the display function
 
   */
-  int image_x_dimension = 1919;//for the time being, call it 1080p
- 	int image_y_dimension = 1079;
+
+  cout << "start";
+  int image_x_dimension = 3000;
+ 	int image_y_dimension = 3000;
 
   int block_xdim = parent->x_dim;                 int block_ydim = parent->y_dim;                 int block_zdim = parent->z_dim;
  	int block_xdim_squared = block_xdim*block_xdim; int block_ydim_squared = block_ydim*block_ydim;	int block_zdim_squared = block_zdim*block_zdim;
@@ -105,7 +107,7 @@ void Voraldo_Lighting::apply_directional_lighting(float initial_intensity, doubl
  	vec block_max = vec(block_xdim,block_ydim,block_zdim);
 
   bool line_box_intersection;
-  Vox temp;
+  Vox temp1,temp2;
 
   double t0 = 0;
   double t1 = 9999;
@@ -117,47 +119,58 @@ void Voraldo_Lighting::apply_directional_lighting(float initial_intensity, doubl
   for(double x = -(image_x_dimension/2-5); x <= (image_x_dimension/2-5); x++)
     for(double y = -(image_y_dimension/2-5); y <= (image_y_dimension/2-5); y++)
     {//init (reset)
+
       line_box_intersection = false;   //reset flag values for the new pixel
 
       image_current_x = image_center_x + x; image_current_y = image_center_y + y; //x and y values for the new pixel
 
-      if(perspective == true) //this gets added inside the loop - note that the linetest will have to consider the perspective corrected ray
+      if(divergence == true) //this gets added inside the loop - note that the linetest will have to consider the perspective corrected ray
       {//this isn't working very well
         vector_increment = 0.5*normalize(-1.0*(cam_position-d_center));
         vector_increment = vector_increment + x*0.001*cam_right - y*0.001*cam_up;
       }
+
       //orthogonal display will have vector_increment equal for all pixels i.e. no divergence
       //figure out if the parametric line established by parameter z and
       //	L = vector_starting_point + z*vector_increment
       //intersects with the box established by (0,0,0) (x,y,z)
       //i.e. block_min and block_max
+      vector_starting_point = cam_position + x*cam_up + y*cam_right;
+
 
       //The goal here is to know whether or not there is data to sample behind any given pixel - this offers a significant speedup
       line_box_intersection = parent->intersect_ray_bbox(block_min,block_max,vector_starting_point,vector_increment,tmin,tmax,t0,t1);
 
-      if(line_box_intersection)
-      {//the ray hits the box, we will need to step through the box
+     if(line_box_intersection)
+     {//the ray hits the box, we will need to step through the box
         alpha_sum = 1.0;
         for(double z = tmin; z <= tmax; z+=0.5) //go from close intersection point (tmin) to far intersection point (tmax)
         {
           vector_test_point = linalg::floor(vector_starting_point + z*vector_increment);  //get the test point
-          temp = parent->get_data_by_vector_index(vector_test_point);                     //get the data at the test point
-          if(temp.state != 0)
+          temp1 = parent->get_data_by_vector_index(vector_test_point);                    //get the data at the test point
+          //cout << "test";
+          if(temp1.state != 0)
           {
             //set lighting value of the cell, based upon the current lighting intensity, write it back to the array
             //the current lighting intensity is scaled by the input argument initial_intensity, and multiplied by alpha_sum
+            //cout<<"nonzero state - ";
 
-                /*construct the new Vox here*/
+            //temp2 = get_vox(temp1.state,temp1.alpha,clamp(temp1.lighting_intensity+(initial_intensity*(1-alpha_sum)),0,1),temp1.mask);
+            temp2 = get_vox(temp1.state,temp1.alpha,clamp(temp1.lighting_intensity+0.5,0,1),temp1.mask);
+            parent->set_data_by_vector_index(vector_test_point,temp2,false,false,true);
 
             //certain amount of light gets 'absorbed' by the cell, temp - subtract the alpha value from the alpha_sum
-            alpha_sum -= temp.alpha;
+            //alpha_sum -= temp1.alpha;
 
             //if the lighting intensity is now less than zero, break out of the for loop - there's no more light left
-            if(alpha_sum <= 0.0)
+            if(temp1.alpha == 1.0)
+            {
+              //cout << "alpha_sum < 0, break" << endl;
               break;
+            }
           }
         }//end for (z)
-      }
+      }//end if
    }//end for (x and y)
 }
 
@@ -179,7 +192,7 @@ void Voraldo_Lighting::apply_ambient_occlusion()
        index = vec(i,j,k);
 
 
-       //this is crude - consider other methods?
+       //this is crude, slow - consider other methods?
        for (int x = -3; x <= 3; x++)
        {
          for (int y = -3; y <= 3; y++)
@@ -220,7 +233,7 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  	int image_x_dimension = 1919;
  	int image_y_dimension = 1079;
 
- 	CImg<unsigned char> img(image_x_dimension,image_y_dimension,1,3,0);
+ 	CImg<double> img(image_x_dimension,image_y_dimension,1,3,0);
 
  	const unsigned char	gold[3] = {255,215,0};
  	const unsigned char dark_gold[3] = {127,107,0};
@@ -472,7 +485,7 @@ void Voraldo_Draw::draw_noise(bool draw, float alpha, float lighting_intensity, 
 {
   for(int i = 0; i < parent->num_cells; i++)
   {
-     if(std::rand()%696 == 69 && std::rand()%696 < 100)
+     if(std::rand()%696 == 69 && std::rand()%696 < 30)
      {
        if(!parent->data[i].mask)
        {
@@ -654,7 +667,8 @@ void Voraldo_Draw::draw_cylinder(vec bvec, vec tvec, double radius, Vox set, boo
 					//sequential tests evaluate positively, we know we are within the extents of the cylinder.
 
 					point_to_line_distance = linalg::length(cross(tvec-bvec,bvec-vec(i,j,k)))/linalg::length(tvec-bvec);
-					if(point_to_line_distance <= radius){
+					if(point_to_line_distance <= radius)
+          {
 						draw_point(index,set,draw,mask);
 					}
 				}

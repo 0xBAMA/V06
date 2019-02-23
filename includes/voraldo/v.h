@@ -47,7 +47,8 @@ struct RGB{
 
 struct Vox{
 	unsigned char state;
-	float alpha,lighting_intensity;
+	double alpha;
+	float lighting_intensity;
 	bool mask;
 
 	//unsigned char lighting_intensity;
@@ -57,7 +58,7 @@ struct Vox{
 	//data for zero valued cells.
 };
 
-Vox get_vox(unsigned char state, float alpha, float lighting_intensity, bool mask);
+Vox get_vox(unsigned char state, double alpha, float lighting_intensity, bool mask);
 
 class Voraldo_Lighting{
 public:
@@ -66,7 +67,7 @@ public:
 	Voraldo_Lighting(Voraldo *p);
 	~Voraldo_Lighting();
 
-	void apply_directional_lighting(float initial_intensity, double x_rot, double y_rot, double z_rot, float divergence);
+	void apply_directional_lighting(float initial_intensity, double x_rot, double y_rot, double z_rot, double scale, bool divergence);
 	void apply_ambient_occlusion();
 
 };
@@ -143,6 +144,7 @@ public:
 //	these functions can be used to mask without drawing if desired
 
 	void draw_noise(bool draw=true, float alpha=1.0, float lighting_intensity=1.0, bool mask=false);
+
 	//replaces the noisefill argument for the init_block
 
 	void draw_point(vec point, Vox set, bool draw=true, bool mask=false);

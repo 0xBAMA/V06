@@ -28,8 +28,12 @@ Voraldo *main_block;
 int main()
 {
 
+  bool animate = false;
+
   main_block = new Voraldo();
   main_block->draw->init_block(dimensions);
+
+  vec center = vec(floor(init_x/2),floor(init_y/2),floor(init_z/2));
 
   /*
 
@@ -67,6 +71,7 @@ int main()
 
   */
 
+
    vec ap = vec(  30,  85, 230);
    vec bp = vec(  30,  75, 230);
    vec cp = vec(  75,  85, 230);
@@ -85,11 +90,23 @@ int main()
    vec gr = vec( 175,  15, 175);
    vec hr = vec( 165,  15, 175);
 
+   vec ball_position = ((ap + ep + cp + gp) / 4.0) + vec(0,15,0);
+   main_block->draw->draw_sphere(ball_position,10,get_vox(14,1.0,0.0,false),true,false);
+
+
    vec as,bs,cs,ds,es,fs,gs,hs;
    vec ib,kb;
 
    vec v1 = vec(2,2,0);
    vec v2 = vec(0,20,0);
+
+   main_block->draw->draw_noise();
+
+   main_block->draw->mask_all_nonzero();
+
+   main_block->draw->draw_sphere(center,1000,get_vox(17,0.0008,0.0,false),true,false);
+
+
 
    main_block->draw->draw_quadrilateral_hexahedron(ap,bp,cp,dp,ep,fp,gp,hp,get_vox(27,1.0,1.0,false),true,false);
    main_block->draw->draw_quadrilateral_hexahedron(ar,br,cr,dr,er,fr,gr,hr,get_vox(27,1.0,1.0,false),true,false);
@@ -114,22 +131,52 @@ int main()
      main_block->draw->draw_quadrilateral_hexahedron(as+v1,bs+v1,cs+v1,ds+v1,es+v1,fs+v1,gs+v1,hs+v1,get_vox(0,0.01,1.0,false),true,false);
 
      main_block->draw->draw_line_segment(ib,ib+v2,get_vox(4,1.0,1.0,false),true,false);
+     main_block->draw->draw_sphere(ib+v2,3,get_vox(46,1.0,0.0,false),true,false);
+     main_block->draw->draw_sphere(ib+vec(0,5,0),2,get_vox(26,1.0,0.0,false),true,false);
+
+
+
      main_block->draw->draw_line_segment(kb,kb+v2,get_vox(4,1.0,1.0,false),true,false);
+     main_block->draw->draw_sphere(kb+v2,3,get_vox(46,1.0,0.0,false),true,false);
+     main_block->draw->draw_sphere(kb+vec(0,5,0),2,get_vox(26,1.0,0.0,false),true,false);
+
 
    }
 
 
 
-  main_block->draw->draw_noise();
-
-  main_block->lighting->apply_ambient_occlusion();
 
 
-  for(int i = 0; i <= 2*314; i += 1){
-      //main_block->io->display("new_output.png", 3.14, 3.14/3.0, 3.14/3.0, 0.4, false);
-      std::cout << i << std::endl;
-      main_block->io->display("animation/new_output"+ std::to_string(i) +".png",  3.14, 0.01*i*3.14/3.0, 3.14/3.0, 0.4, false);
-  }
+
+
+
+   main_block->lighting->apply_ambient_occlusion();
+   main_block->lighting->apply_directional_lighting(5.0, 3.14, 0.25*3.14, 3.14/3, 0.15, true);
+
+
+   if(animate)
+   {
+     for(int i = 0; i <= 2*314; i += 1){
+        std::cout << i << std::endl;
+
+        if(i < 10)
+        {
+          main_block->io->display("animation/new_output00"+ std::to_string(i) +".png",  3.14, 0.01*i*3.14/3.0, 3.14/3.0, 0.4, false);
+        }
+        else if(i < 100)
+        {
+          main_block->io->display("animation/new_output0"+ std::to_string(i) +".png",  3.14, 0.01*i*3.14/3.0, 3.14/3.0, 0.4, false);
+        }
+        else
+        {
+          main_block->io->display("animation/new_output"+ std::to_string(i) +".png",  3.14, 0.01*i*3.14/3.0, 3.14/3.0, 0.4, false);
+        }
+     }
+   }
+   else
+   {
+     main_block->io->display("new_output1.png", 3.14, 3.14/3.0 + 3.14, 3.14/3.0, 0.4, false);
+   }
 
   return 0;
 }
