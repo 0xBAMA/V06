@@ -52,7 +52,7 @@ void Voraldo_Lighting::apply_directional_lighting(float initial_intensity, doubl
 
   */
 
-  cout << "start";
+  //cout << "start";
   int image_x_dimension = 3000;
  	int image_y_dimension = 3000;
 
@@ -156,7 +156,7 @@ void Voraldo_Lighting::apply_directional_lighting(float initial_intensity, doubl
             //cout<<"nonzero state - ";
 
             //temp2 = get_vox(temp1.state,temp1.alpha,clamp(temp1.lighting_intensity+(initial_intensity*(1-alpha_sum)),0,1),temp1.mask);
-            temp2 = get_vox(temp1.state,temp1.alpha,clamp(temp1.lighting_intensity+0.5,0,1),temp1.mask);
+            temp2 = get_vox(temp1.state,temp1.alpha,clamp(temp1.lighting_intensity+0.35,0,1),temp1.mask);
             parent->set_data_by_vector_index(vector_test_point,temp2,false,false,true);
 
             //certain amount of light gets 'absorbed' by the cell, temp - subtract the alpha value from the alpha_sum
@@ -658,6 +658,7 @@ void Voraldo_Draw::draw_cylinder(vec bvec, vec tvec, double radius, Vox set, boo
 				//for the following if statement:
 
 				if(bplanetest >= 0 && tplanetest <= 0){
+          //cout << "planetest passed" << endl;
 					//do the point to line distance thing
 					//algorithm from http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
 
@@ -669,6 +670,8 @@ void Voraldo_Draw::draw_cylinder(vec bvec, vec tvec, double radius, Vox set, boo
 					point_to_line_distance = linalg::length(cross(tvec-bvec,bvec-vec(i,j,k)))/linalg::length(tvec-bvec);
 					if(point_to_line_distance <= radius)
           {
+            //cout << "point to line distance test passed" << endl;
+            index = vec(i,j,k);
 						draw_point(index,set,draw,mask);
 					}
 				}
@@ -679,7 +682,7 @@ void Voraldo_Draw::draw_cylinder(vec bvec, vec tvec, double radius, Vox set, boo
 
 void Voraldo_Draw::draw_tube(vec bvec, vec tvec, double inner_radius, double outer_radius, Vox set, bool draw, bool mask)
 {
- vec ndirection = tvec - bvec;
+  vec ndirection = tvec - bvec;
 
  	auto bx0 = bvec[0]; auto ba = ndirection[0];	auto tx0 = tvec[0]; auto ta = ndirection[0];
  	auto by0 = bvec[1]; auto bb = ndirection[1];	auto ty0 = tvec[1]; auto tb = ndirection[1];
@@ -721,7 +724,9 @@ void Voraldo_Draw::draw_tube(vec bvec, vec tvec, double inner_radius, double out
 
  					point_to_line_distance = linalg::length(cross(tvec-bvec,bvec-vec(i,j,k)))/linalg::length(tvec-bvec);
 
- 					if(point_to_line_distance <= outer_radius && point_to_line_distance >= inner_radius){
+ 					if(point_to_line_distance <= outer_radius && point_to_line_distance >= inner_radius)
+          {
+            index = vec(i,j,k);
             draw_point(index,set,draw,mask);
  					}
  				}
@@ -732,7 +737,7 @@ void Voraldo_Draw::draw_tube(vec bvec, vec tvec, double inner_radius, double out
 
 void Voraldo_Draw::draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec e, vec f, vec g, vec h, Vox set, bool draw, bool mask)
 {
- vec center = a + b + c + d + e + f + g + h;
+  vec center = a + b + c + d + e + f + g + h;
  	center = vec(center[0]/8, center[1]/8, center[2]/8);
 
  	bool plusx1 = false;
