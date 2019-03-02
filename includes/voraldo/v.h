@@ -70,6 +70,8 @@ public:
 	void apply_directional_lighting(float initial_intensity, double x_rot, double y_rot, double z_rot, double scale, bool divergence);
 	void apply_ambient_occlusion();
 
+	void scale_lighting_intensity(double scale);
+
 };
 
 
@@ -179,6 +181,13 @@ public:
 		//the main issue comes in when the four points making up a face do not lie in
 		//the same plane - there the algorithm has to choose between two ambigous
 		//cases and the results will be less than predictable.
+
+	void draw_regular_icosahedron(double x_rot, double y_rot, double z_rot, double scale, vec center_point, Vox vertex_material, double verticies_radius, Vox edge_material, double edge_thickness, Vox face_material, bool draw_faces = true, bool draw=true, bool mask=false);
+	//too many arguments? allows for the scaling, rotation and then placement of the icosahedron.
+		//in addition, a material can be specified to use for the vertexes, the material for the edges, and that for the faces.
+		//the edge width (0 -> don't draw, 0-1 -> draw a line or >1 -> draw a cylinder) and the radius of the spheres for the verticies can be specified.
+		//right now there's no way to manipulate the faces, beyond the material.
+
 };
 
 class Voraldo{

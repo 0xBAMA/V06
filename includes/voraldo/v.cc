@@ -143,7 +143,7 @@ void Voraldo_Lighting::apply_directional_lighting(float initial_intensity, doubl
 
      if(line_box_intersection)
      {//the ray hits the box, we will need to step through the box
-        alpha_sum = 1.0;
+        alpha_sum = 0;
         for(double z = tmin; z <= tmax; z+=0.5) //go from close intersection point (tmin) to far intersection point (tmax)
         {
           vector_test_point = linalg::floor(vector_starting_point + z*vector_increment);  //get the test point
@@ -153,19 +153,17 @@ void Voraldo_Lighting::apply_directional_lighting(float initial_intensity, doubl
           {
             //set lighting value of the cell, based upon the current lighting intensity, write it back to the array
             //the current lighting intensity is scaled by the input argument initial_intensity, and multiplied by alpha_sum
-            //cout<<"nonzero state - ";
 
             //temp2 = get_vox(temp1.state,temp1.alpha,clamp(temp1.lighting_intensity+(initial_intensity*(1-alpha_sum)),0,1),temp1.mask);
-            temp2 = get_vox(temp1.state,temp1.alpha,clamp(temp1.lighting_intensity+0.35,0,1),temp1.mask);
+            temp2 = get_vox(temp1.state,temp1.alpha,temp1.lighting_intensity+0.001*alpha_sum,temp1.mask);
             parent->set_data_by_vector_index(vector_test_point,temp2,false,false,true);
 
             //certain amount of light gets 'absorbed' by the cell, temp - subtract the alpha value from the alpha_sum
-            //alpha_sum -= temp1.alpha;
+            alpha_sum += 0.1*temp1.alpha;
 
             //if the lighting intensity is now less than zero, break out of the for loop - there's no more light left
-            if(temp1.alpha == 1.0)
+            if(alpha_sum >= 1.0)
             {
-              //cout << "alpha_sum < 0, break" << endl;
               break;
             }
           }
@@ -207,13 +205,21 @@ void Voraldo_Lighting::apply_ambient_occlusion()
        }
        //do some shit to come up with a number for lighting_intensity
        temp = parent->get_data_by_vector_index(index);
-       temp = get_vox(temp.state, temp.alpha, clamp(temp.lighting_intensity*(1-(sum/tot)),temp.lighting_intensity*0.35,1)/*lighting intensity*/, temp.mask);
+       temp = get_vox(temp.state, temp.alpha, clamp(temp.lighting_intensity*(sum/(tot*2)),temp.lighting_intensity*0.5,1)/*lighting intensity*/, temp.mask);
        parent->set_data_by_vector_index(index,temp,false,false,true);
       }
     }
   }
 }
 
+
+void Voraldo_Lighting::scale_lighting_intensity(double scale)
+{
+  for(int i = 0; i < parent->num_cells; i++)
+  {
+   parent->data[i].lighting_intensity =  clamp(parent->data[i].lighting_intensity*scale,0,1);
+  }
+}
 
 //---------------------------
 Voraldo_IO::Voraldo_IO(Voraldo *p)
@@ -658,7 +664,7 @@ void Voraldo_Draw::draw_cylinder(vec bvec, vec tvec, double radius, Vox set, boo
 				//for the following if statement:
 
 				if(bplanetest >= 0 && tplanetest <= 0){
-          //cout << "planetest passed" << endl;
+
 					//do the point to line distance thing
 					//algorithm from http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
 
@@ -1004,6 +1010,176 @@ void Voraldo_Draw::draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec
  			}
  		}
  	}
+}
+
+void Voraldo_Draw::draw_regular_icosahedron(double x_rot, double y_rot, double z_rot, double scale, vec center_point, Vox vertex_material, double verticies_radius, Vox edge_material, double edge_thickness, Vox face_material,bool draw_faces, bool draw, bool mask)
+{
+  double phi = (1 + std::sqrt(5.0))/2.0;
+
+//rotation matricies allowing rotation of the polyhedron
+ 	mat rotation_x_axis;
+ //refernces [column][row] - sin and cos take arguments in radians
+ 		rotation_x_axis[0][0] = 1;                       rotation_x_axis[1][0] = 0;                      rotation_x_axis[2][0] = 0;
+ 		rotation_x_axis[0][1] = 0;                       rotation_x_axis[1][1] = std::cos(x_rot);        rotation_x_axis[2][1] = -1.0*std::sin(x_rot);
+ 		rotation_x_axis[0][2] = 0;                       rotation_x_axis[1][2] = std::sin(x_rot);        rotation_x_axis[2][2] = std::cos(x_rot);
+
+ 	mat rotation_y_axis;
+ 		rotation_y_axis[0][0] = std::cos(y_rot);         rotation_y_axis[1][0] = 0;                      rotation_y_axis[2][0] = std::sin(y_rot);
+ 		rotation_y_axis[0][1] = 0;                       rotation_y_axis[1][1] = 1;                      rotation_y_axis[2][1] = 0;
+ 		rotation_y_axis[0][2] = -1.0*std::sin(y_rot);    rotation_y_axis[1][2] = 0;                      rotation_y_axis[2][2] = std::cos(y_rot);
+
+ 	mat rotation_z_axis;
+ 		rotation_z_axis[0][0] = std::cos(z_rot);         rotation_z_axis[1][0] = -1.0*std::sin(z_rot);   rotation_z_axis[2][0] = 0;
+ 		rotation_z_axis[0][1] = std::sin(z_rot);         rotation_z_axis[1][1] = std::cos(z_rot);        rotation_z_axis[2][1] = 0;
+ 		rotation_z_axis[0][2] = 0;                       rotation_z_axis[1][2] = 0;                      rotation_z_axis[2][2] = 1;
+
+  mat rotation = mul(rotation_x_axis,mul(rotation_y_axis,rotation_z_axis)); //multiply these all together
+
+  vec a,b,c,d,e,f,g,h,i,j,k,l;
+//the work for this is in my journal, the entry on 3/1/2019
+//it is based on the idea that the points of a regular icosahedron lie on the points defined by three mutually orthogonal golden rectangles that share a center point at the origin
+//i.e. these rectanges are abcd,efgh and ijkl
+  a = mul(rotation, vec(  0,  1*scale,  phi*scale)) + center_point; e = mul(rotation, vec(  1*scale,  phi*scale,  0)) + center_point; i = mul(rotation, vec(  phi*scale,  0,  1*scale)) + center_point;
+  b = mul(rotation, vec(  0,  1*scale, -phi*scale)) + center_point; f = mul(rotation, vec(  1*scale, -phi*scale,  0)) + center_point; j = mul(rotation, vec(  phi*scale,  0, -1*scale)) + center_point;
+  c = mul(rotation, vec(  0, -1*scale,  phi*scale)) + center_point; g = mul(rotation, vec( -1*scale,  phi*scale,  0)) + center_point; k = mul(rotation, vec( -phi*scale,  0,  1*scale)) + center_point;
+  d = mul(rotation, vec(  0, -1*scale, -phi*scale)) + center_point; h = mul(rotation, vec( -1*scale, -phi*scale,  0)) + center_point; l = mul(rotation, vec( -phi*scale,  0, -1*scale)) + center_point;
+//nonzero components of the coordinates are scaled by the scale input argument. The result of that operation is multiplied by the composed rotation matrix, then added to the shape's center point
+
+
+  if(draw_faces)
+  {//draw the faces -
+    draw_triangle( a, g, e, face_material, draw, mask); //AGE
+    draw_triangle( a, i, e, face_material, draw, mask); //AIE
+    draw_triangle( a, c, i, face_material, draw, mask); //ACI
+    draw_triangle( a, c, k, face_material, draw, mask); //ACK
+    draw_triangle( a, g, k, face_material, draw, mask); //AGK
+    draw_triangle( l, b, g, face_material, draw, mask); //LBG
+    draw_triangle( l, g, k, face_material, draw, mask); //LGK
+    draw_triangle( l, f, k, face_material, draw, mask); //LFK
+    draw_triangle( l, d, f, face_material, draw, mask); //LDF
+    draw_triangle( l, d, b, face_material, draw, mask); //LDB
+    draw_triangle( k, f, c, face_material, draw, mask); //KFC
+    draw_triangle( f, h, c, face_material, draw, mask); //FHC
+    draw_triangle( h, i, c, face_material, draw, mask); //HIC
+    draw_triangle( e, j, i, face_material, draw, mask); //EJI
+    draw_triangle( b, g, e, face_material, draw, mask); //BGE
+    draw_triangle( f, h, d, face_material, draw, mask); //FHD
+    draw_triangle( d, h, j, face_material, draw, mask); //DHJ
+    draw_triangle( d, b, j, face_material, draw, mask); //DBJ
+    draw_triangle( b, j, e, face_material, draw, mask); //BJE
+    draw_triangle( h, i, j, face_material, draw, mask); //HIJ
+  }
+
+
+
+
+  if(edge_thickness)
+  {//nonzero value passed for edge thickness
+    //draw the edges
+    if(edge_thickness <= 1)
+    {//use lines
+      draw_line_segment(a,c, edge_material, draw, mask); //AC
+      draw_line_segment(a,e, edge_material, draw, mask); //AE
+      draw_line_segment(a,g, edge_material, draw, mask); //AG
+      draw_line_segment(a,i, edge_material, draw, mask); //AI
+      draw_line_segment(a,k, edge_material, draw, mask); //AK
+
+      draw_line_segment(b,d, edge_material, draw, mask); //BD
+      draw_line_segment(b,e, edge_material, draw, mask); //BE
+      draw_line_segment(b,g, edge_material, draw, mask); //BG
+      draw_line_segment(b,j, edge_material, draw, mask); //BJ
+      draw_line_segment(b,l, edge_material, draw, mask); //BL
+
+      draw_line_segment(c,f, edge_material, draw, mask); //CF
+      draw_line_segment(c,h, edge_material, draw, mask); //CH
+      draw_line_segment(c,i, edge_material, draw, mask); //CI
+      draw_line_segment(c,k, edge_material, draw, mask); //CK
+
+      draw_line_segment(d,f, edge_material, draw, mask); //DF
+      draw_line_segment(d,h, edge_material, draw, mask); //DH
+      draw_line_segment(d,j, edge_material, draw, mask); //DJ
+      draw_line_segment(d,l, edge_material, draw, mask); //DL
+
+      draw_line_segment(e,g, edge_material, draw, mask); //EG
+      draw_line_segment(e,i, edge_material, draw, mask); //EI
+      draw_line_segment(e,j, edge_material, draw, mask); //EJ
+
+      draw_line_segment(f,h, edge_material, draw, mask); //FH
+      draw_line_segment(f,k, edge_material, draw, mask); //FK
+      draw_line_segment(f,l, edge_material, draw, mask); //FL
+
+      draw_line_segment(g,k, edge_material, draw, mask); //GK
+      draw_line_segment(g,l, edge_material, draw, mask); //GL
+
+      draw_line_segment(h,i, edge_material, draw, mask); //HI
+      draw_line_segment(h,j, edge_material, draw, mask); //HJ
+
+      draw_line_segment(i,j, edge_material, draw, mask); //IJ
+
+      draw_line_segment(k,l, edge_material, draw, mask); //KL
+    }
+    else
+    {//use cylinders of radius edge_thickness
+      draw_cylinder(a,c, edge_thickness, edge_material, draw, mask); //AC
+      draw_cylinder(a,e, edge_thickness, edge_material, draw, mask); //AE
+      draw_cylinder(a,g, edge_thickness, edge_material, draw, mask); //AG
+      draw_cylinder(a,i, edge_thickness, edge_material, draw, mask); //AI
+      draw_cylinder(a,k, edge_thickness, edge_material, draw, mask); //AK
+
+      draw_cylinder(b,d, edge_thickness, edge_material, draw, mask); //BD
+      draw_cylinder(b,e, edge_thickness, edge_material, draw, mask); //BE
+      draw_cylinder(b,g, edge_thickness, edge_material, draw, mask); //BG
+      draw_cylinder(b,j, edge_thickness, edge_material, draw, mask); //BJ
+      draw_cylinder(b,l, edge_thickness, edge_material, draw, mask); //BL
+
+      draw_cylinder(c,f, edge_thickness, edge_material, draw, mask); //CF
+      draw_cylinder(c,h, edge_thickness, edge_material, draw, mask); //CH
+      draw_cylinder(c,i, edge_thickness, edge_material, draw, mask); //CI
+      draw_cylinder(c,k, edge_thickness, edge_material, draw, mask); //CK
+
+      draw_cylinder(d,f, edge_thickness, edge_material, draw, mask); //DF
+      draw_cylinder(d,h, edge_thickness, edge_material, draw, mask); //DH
+      draw_cylinder(d,j, edge_thickness, edge_material, draw, mask); //DJ
+      draw_cylinder(d,l, edge_thickness, edge_material, draw, mask); //DL
+
+      draw_cylinder(e,g, edge_thickness, edge_material, draw, mask); //EG
+      draw_cylinder(e,i, edge_thickness, edge_material, draw, mask); //EI
+      draw_cylinder(e,j, edge_thickness, edge_material, draw, mask); //EJ
+
+      draw_cylinder(f,h, edge_thickness, edge_material, draw, mask); //FH
+      draw_cylinder(f,k, edge_thickness, edge_material, draw, mask); //FK
+      draw_cylinder(f,l, edge_thickness, edge_material, draw, mask); //FL
+
+      draw_cylinder(g,k, edge_thickness, edge_material, draw, mask); //GK
+      draw_cylinder(g,l, edge_thickness, edge_material, draw, mask); //GL
+
+      draw_cylinder(h,i, edge_thickness, edge_material, draw, mask); //HI
+      draw_cylinder(h,j, edge_thickness, edge_material, draw, mask); //HJ
+
+      draw_cylinder(i,j, edge_thickness, edge_material, draw, mask); //IJ
+
+      draw_cylinder(k,l, edge_thickness, edge_material, draw, mask); //KL
+    }
+  }
+
+  if(verticies_radius)
+  {//nonzero value passed for vertex radius
+    //draw the vertexes
+    draw_sphere(a, verticies_radius, vertex_material, draw, mask);
+    draw_sphere(b, verticies_radius, vertex_material, draw, mask);
+    draw_sphere(c, verticies_radius, vertex_material, draw, mask);
+    draw_sphere(d, verticies_radius, vertex_material, draw, mask);
+
+    draw_sphere(e, verticies_radius, vertex_material, draw, mask);
+    draw_sphere(f, verticies_radius, vertex_material, draw, mask);
+    draw_sphere(g, verticies_radius, vertex_material, draw, mask);
+    draw_sphere(h, verticies_radius, vertex_material, draw, mask);
+
+    draw_sphere(i, verticies_radius, vertex_material, draw, mask);
+    draw_sphere(j, verticies_radius, vertex_material, draw, mask);
+    draw_sphere(k, verticies_radius, vertex_material, draw, mask);
+    draw_sphere(l, verticies_radius, vertex_material, draw, mask);
+  }
 }
 
 
