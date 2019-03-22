@@ -159,7 +159,7 @@ void Voraldo_Lighting::apply_directional_lighting(float initial_intensity, doubl
             parent->set_data_by_vector_index(vector_test_point,temp2,false,false,true);
 
             //certain amount of light gets 'absorbed' by the cell, temp - subtract the alpha value from the alpha_sum
-            alpha_sum += 0.1*temp1.alpha;
+            alpha_sum += 0.2*temp1.alpha;
 
             //if the lighting intensity is now less than zero, break out of the for loop - there's no more light left
             if(alpha_sum >= 1.0)
@@ -515,13 +515,13 @@ void Voraldo_Draw::draw_line_segment(vec v1, vec v2, Vox set, bool draw, bool ma
 	vec current_point = starting_point;
 	vec line_vector = (v2-v1);
 
-	int length = std::floor(linalg::length(line_vector));
+	int length = linalg::length(line_vector);
 
 	for(int i = 0; i < length; i++)
 	{
-		current_point[0] = starting_point[0] + i*(line_vector[0]/length);
-		current_point[1] = starting_point[1] + i*(line_vector[1]/length);
-		current_point[2] = starting_point[2] + i*(line_vector[2]/length);
+		current_point[0] = std::floor(starting_point[0] + i*(line_vector[0]/length));
+		current_point[1] = std::floor(starting_point[1] + i*(line_vector[1]/length));
+		current_point[2] = std::floor(starting_point[2] + i*(line_vector[2]/length));
 
     draw_point(current_point,set,draw,mask);
 	}
@@ -1040,9 +1040,9 @@ void Voraldo_Draw::draw_regular_icosahedron(double x_rot, double y_rot, double z
 //it is based on the idea that the points of a regular icosahedron lie on the points defined by three mutually orthogonal golden rectangles that share a center point at the origin
 //i.e. these rectanges are abcd,efgh and ijkl
   a = mul(rotation, vec(  0,  1*scale,  phi*scale)) + center_point; e = mul(rotation, vec(  1*scale,  phi*scale,  0)) + center_point; i = mul(rotation, vec(  phi*scale,  0,  1*scale)) + center_point;
-  b = mul(rotation, vec(  0,  1*scale, -phi*scale)) + center_point; f = mul(rotation, vec(  1*scale, -phi*scale,  0)) + center_point; j = mul(rotation, vec(  phi*scale,  0, -1*scale)) + center_point;
+  b = mul(rotation, vec(  0,  1*scale, -phi*scale)) + center_point; f = mul(rotation, vec( -1*scale, -phi*scale,  0)) + center_point; j = mul(rotation, vec(  phi*scale,  0, -1*scale)) + center_point;
   c = mul(rotation, vec(  0, -1*scale,  phi*scale)) + center_point; g = mul(rotation, vec( -1*scale,  phi*scale,  0)) + center_point; k = mul(rotation, vec( -phi*scale,  0,  1*scale)) + center_point;
-  d = mul(rotation, vec(  0, -1*scale, -phi*scale)) + center_point; h = mul(rotation, vec( -1*scale, -phi*scale,  0)) + center_point; l = mul(rotation, vec( -phi*scale,  0, -1*scale)) + center_point;
+  d = mul(rotation, vec(  0, -1*scale, -phi*scale)) + center_point; h = mul(rotation, vec(  1*scale, -phi*scale,  0)) + center_point; l = mul(rotation, vec( -phi*scale,  0, -1*scale)) + center_point;
 //nonzero components of the coordinates are scaled by the scale input argument. The result of that operation is multiplied by the composed rotation matrix, then added to the shape's center point
 
 

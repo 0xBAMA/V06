@@ -27,7 +27,7 @@ Voraldo *main_block;
 int main()
 {
 
-  bool animate = true;
+  bool animate = false;
 
   main_block = new Voraldo();
   main_block->draw->init_block(dimensions);
@@ -152,9 +152,9 @@ int main()
    main_block->draw->draw_line_segment(vec(180,8,178), vec( 80, 78,178), get_vox(30,1.0,1.0,true));
 
    //main_block->draw->draw_cylinder(center,center+vec(0,20,20),45,get_vox(37,0.02,1.0,false),true,true);
-   main_block->draw->draw_tube(center,center+vec(0,20,20),45,55,get_vox(37,0.02,0.3,false),true,true);
+   main_block->draw->draw_tube(center+vec(0,-10,-10),center+vec(0,10,10),45,55,get_vox(37,0.02,0.3,false),true,true);
 
-   main_block->draw->draw_regular_icosahedron(0,0,0,20,center,get_vox(27,1.0,0.3,false/*vertex material*/),2,get_vox(4,1.0,0.3,false/*edge_material*/),1.5,get_vox(37,0.12,0.3,false/*face_material*/));
+   main_block->draw->draw_regular_icosahedron(0,0,0,20,center,get_vox(27,1.0,0.3,false/*vertex material*/),2,get_vox(4,1.0,0.3,false/*edge_material*/),1.5,get_vox(37,0.20,0.3,false/*face_material*/));
 
 
 
@@ -165,7 +165,7 @@ int main()
 
    main_block->lighting->scale_lighting_intensity(4.0);
 
-   main_block->io->display("new_output_step_1.png", 3.14, 3.14/3.0 + 3.14, 3.14/3.0, 0.4, false);
+   //main_block->io->display("new_output_step_1.png", 3.14, 3.14/3.0 + 3.14, 3.14/3.0, 0.4, false);
 
    // main_block->lighting->scale_lighting_intensity(1.2);
    //
@@ -197,19 +197,11 @@ int main()
 
 
            cout << "process 0 starting" << endl;
-           for(int i = 4*40; i < 5*40; i += 1)
+           for(int i = 4*40+320; i < 5*40+320; i += 1)
            {
               std::cout << "frame number " << i;
               tick = Clock::now();
 
-              main_block->draw->draw_sphere(center,1000,get_vox( 0,0.0007,0.1,false),true,false);
-              main_block->draw->draw_regular_icosahedron(-0.001*i,0.001*i,0.001*i,20,center,get_vox(27,1.0,0.3,false/*vertex material*/),2,get_vox(4,1.0,0.3,false/*edge_material*/),1.5,get_vox(37,0.12,0.3,false/*face_material*/));
-             // main_block->draw->draw_sphere(center,1000,get_vox(17,0.0007,0.1,false),true,false);
-
-              main_block->lighting->scale_lighting_intensity(1.8);
-
-              main_block->lighting->apply_directional_lighting(5.0, 3.14, 0.25*3.14, 3.14/3, 0.15, true);
-              main_block->lighting->scale_lighting_intensity(0.8);
 
               if(i < 10)
               {
@@ -233,19 +225,10 @@ int main()
           {//process 4 (child of process 0)
             cout << "process 4 starting" << endl;
 
-            for(int i = 0; i < 40; i += 1)
+            for(int i = 0+320; i < 40+320; i += 1)
             {
                std::cout << "frame number " << i;
                tick = Clock::now();
-
-               main_block->draw->draw_sphere(center,1000,get_vox( 0,0.0007,0.1,false),true,false);
-               main_block->draw->draw_regular_icosahedron(-0.001*i,0.001*i,0.001*i,20,center,get_vox(27,1.0,0.3,false/*vertex material*/),2,get_vox(4,1.0,0.3,false/*edge_material*/),1.5,get_vox(37,0.12,0.3,false/*face_material*/));
-              // main_block->draw->draw_sphere(center,1000,get_vox(17,0.0007,0.1,false),true,false);
-
-               main_block->lighting->scale_lighting_intensity(1.8);
-
-               main_block->lighting->apply_directional_lighting(5.0, 3.14, 0.25*3.14, 3.14/3, 0.15, true);
-               main_block->lighting->scale_lighting_intensity(0.8);
 
                if(i < 10)
                {
@@ -272,19 +255,11 @@ int main()
          {//process 2
            cout << "process 2 starting" << endl;
 
-           for(int i = 2*40; i < 3*40; i += 1)
+           for(int i = 2*40+320; i < 3*40+320; i += 1)
            {
              std::cout << "frame number " << i;
              tick = Clock::now();
 
-             main_block->draw->draw_sphere(center,1000,get_vox( 0,0.0007,0.1,false),true,false);
-             main_block->draw->draw_regular_icosahedron(-0.001*i,0.001*i,0.001*i,20,center,get_vox(27,1.0,0.3,false/*vertex material*/),2,get_vox(4,1.0,0.3,false/*edge_material*/),1.5,get_vox(37,0.12,0.3,false/*face_material*/));
-            // main_block->draw->draw_sphere(center,1000,get_vox(17,0.0007,0.1,false),true,false);
-
-             main_block->lighting->scale_lighting_intensity(1.8);
-
-             main_block->lighting->apply_directional_lighting(5.0, 3.14, 0.25*3.14, 3.14/3, 0.15, true);
-             main_block->lighting->scale_lighting_intensity(0.8);
 
               if(i < 10)
               {
@@ -306,19 +281,11 @@ int main()
          {//process 5 (child of process 2)
            cout << "process 5 starting" << endl;
 
-           for(int i = 5*40; i < 6*40; i += 1)
+           for(int i = 5*40+320; i < 6*40+320; i += 1)
            {
              std::cout << "frame number " << i;
              tick = Clock::now();
 
-             main_block->draw->draw_sphere(center,1000,get_vox( 0,0.0007,0.1,false),true,false);
-             main_block->draw->draw_regular_icosahedron(-0.001*i,0.001*i,0.001*i,20,center,get_vox(27,1.0,0.3,false/*vertex material*/),2,get_vox(4,1.0,0.3,false/*edge_material*/),1.5,get_vox(37,0.12,0.3,false/*face_material*/));
-            // main_block->draw->draw_sphere(center,1000,get_vox(17,0.0007,0.1,false),true,false);
-
-             main_block->lighting->scale_lighting_intensity(1.8);
-
-             main_block->lighting->apply_directional_lighting(5.0, 3.14, 0.25*3.14, 3.14/3, 0.15, true);
-             main_block->lighting->scale_lighting_intensity(0.8);
 
               if(i < 10)
               {
@@ -346,19 +313,10 @@ int main()
            {//first child process (process 1)
 
            cout << "process 1 starting" << endl;
-           for(int i = 40; i < 2*40; i += 1)
+           for(int i = 40+320; i < 2*40+320; i += 1)
            {
              std::cout << "frame number " << i;
              tick = Clock::now();
-
-             main_block->draw->draw_sphere(center,1000,get_vox( 0,0.0007,0.1,false),true,false);
-             main_block->draw->draw_regular_icosahedron(-0.001*i,0.001*i,0.001*i,20,center,get_vox(27,1.0,0.3,false/*vertex material*/),2,get_vox(4,1.0,0.3,false/*edge_material*/),1.5,get_vox(37,0.12,0.3,false/*face_material*/));
-             //main_block->draw->draw_sphere(center,1000,get_vox(17,0.0007,0.1,false),true,false);
-
-             main_block->lighting->scale_lighting_intensity(1.8);
-
-             main_block->lighting->apply_directional_lighting(5.0, 3.14, 0.25*3.14, 3.14/3, 0.15, true);
-             main_block->lighting->scale_lighting_intensity(0.8);
 
               if(i < 10)
               {
@@ -380,19 +338,10 @@ int main()
          {//process 6
            cout << "process 6 starting" << endl;
 
-           for(int i = 6*40; i < 7*40; i += 1)
+           for(int i = 6*40+320; i < 7*40+320; i += 1)
            {
              std::cout << "frame number " << i;
              tick = Clock::now();
-
-             main_block->draw->draw_sphere(center,1000,get_vox( 0,0.0007,0.1,false),true,false);
-             main_block->draw->draw_regular_icosahedron(-0.001*i,0.001*i,0.001*i,20,center,get_vox(27,1.0,0.3,false/*vertex material*/),2,get_vox(4,1.0,0.3,false/*edge_material*/),1.5,get_vox(37,0.12,0.3,false/*face_material*/));
-            // main_block->draw->draw_sphere(center,1000,get_vox(17,0.0007,0.1,false),true,false);
-
-             main_block->lighting->scale_lighting_intensity(1.8);
-
-             main_block->lighting->apply_directional_lighting(5.0, 3.14, 0.25*3.14, 3.14/3, 0.15, true);
-             main_block->lighting->scale_lighting_intensity(0.8);
 
               if(i < 10)
               {
@@ -419,19 +368,11 @@ int main()
          //child of child process (process 3)
          cout << "process 3 starting" << endl;
 
-         for(int i = 3*40; i < 4*40; i += 1)
+         for(int i = 3*40+320; i < 4*40+320; i += 1)
          {
            std::cout << "frame number " << i;
            tick = Clock::now();
 
-           main_block->draw->draw_sphere(center,1000,get_vox( 0,0.0007,0.1,false),true,false);
-           main_block->draw->draw_regular_icosahedron(-0.001*i,0.001*i,0.001*i,20,center,get_vox(27,1.0,0.3,false/*vertex material*/),2,get_vox(4,1.0,0.3,false/*edge_material*/),1.5,get_vox(37,0.12,0.3,false/*face_material*/));
-          // main_block->draw->draw_sphere(center,1000,get_vox(17,0.0007,0.1,false),true,false);
-
-           main_block->lighting->scale_lighting_intensity(1.8);
-
-           main_block->lighting->apply_directional_lighting(5.0, 3.14, 0.25*3.14, 3.14/3, 0.15, true);
-           main_block->lighting->scale_lighting_intensity(0.8);
 
             if(i < 10)
             {
@@ -453,19 +394,11 @@ int main()
        {
          cout << "process 7 starting" << endl;
 
-         for(int i = 7*40; i < 8*40; i += 1)
+         for(int i = 7*40+320; i < 8*40+320; i += 1)
          {
            std::cout << "frame number " << i;
            tick = Clock::now();
 
-           main_block->draw->draw_sphere(center,1000,get_vox( 0,0.0007,0.1,false),true,false);
-           main_block->draw->draw_regular_icosahedron(-0.001*i,0.001*i,0.001*i,20,center,get_vox(27,1.0,0.3,false/*vertex material*/),2,get_vox(4,1.0,0.3,false/*edge_material*/),1.5,get_vox(37,0.12,0.3,false/*face_material*/));
-          // main_block->draw->draw_sphere(center,1000,get_vox(17,0.0007,0.1,false),true,false);
-
-           main_block->lighting->scale_lighting_intensity(1.8);
-
-           main_block->lighting->apply_directional_lighting(5.0, 3.14, 0.25*3.14, 3.14/3, 0.15, true);
-           main_block->lighting->scale_lighting_intensity(0.8);
 
             if(i < 10)
             {
@@ -488,7 +421,7 @@ int main()
    }//end animate
    else
    {
-     //main_block->io->display("new_output1.png", 3.14, 3.14/3.0 + 3.14, 3.14/3.0, 0.4, false);
+     main_block->io->display("new_output1.png", 3.14, 3.14/3.0 + 3.14, 3.14/3.0, 0.4, false);
    }
 
   return 0;
