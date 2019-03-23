@@ -156,8 +156,7 @@ int main()
 
    main_block->draw->draw_regular_icosahedron(0,0,0,20,center,get_vox(27,1.0,0.3,false/*vertex material*/),2,get_vox(4,1.0,0.3,false/*edge_material*/),1.5,get_vox(37,0.20,0.3,false/*face_material*/));
 
-
-
+  // std::cout << 257*257*257*sizeof(Vox) << endl;
 
 
    main_block->lighting->apply_ambient_occlusion();
@@ -197,7 +196,7 @@ int main()
 
 
            cout << "process 0 starting" << endl;
-           for(int i = 4*40+320; i < 5*40+320; i += 1)
+           for(int i = 4*40; i < 5*40; i += 1)
            {
               std::cout << "frame number " << i;
               tick = Clock::now();
@@ -225,7 +224,7 @@ int main()
           {//process 4 (child of process 0)
             cout << "process 4 starting" << endl;
 
-            for(int i = 0+320; i < 40+320; i += 1)
+            for(int i = 0; i < 40; i += 1)
             {
                std::cout << "frame number " << i;
                tick = Clock::now();
@@ -255,7 +254,7 @@ int main()
          {//process 2
            cout << "process 2 starting" << endl;
 
-           for(int i = 2*40+320; i < 3*40+320; i += 1)
+           for(int i = 2*40; i < 3*40; i += 1)
            {
              std::cout << "frame number " << i;
              tick = Clock::now();
@@ -281,7 +280,7 @@ int main()
          {//process 5 (child of process 2)
            cout << "process 5 starting" << endl;
 
-           for(int i = 5*40+320; i < 6*40+320; i += 1)
+           for(int i = 5*40; i < 6*40; i += 1)
            {
              std::cout << "frame number " << i;
              tick = Clock::now();
@@ -313,7 +312,7 @@ int main()
            {//first child process (process 1)
 
            cout << "process 1 starting" << endl;
-           for(int i = 40+320; i < 2*40+320; i += 1)
+           for(int i = 40; i < 2*40; i += 1)
            {
              std::cout << "frame number " << i;
              tick = Clock::now();
@@ -338,7 +337,7 @@ int main()
          {//process 6
            cout << "process 6 starting" << endl;
 
-           for(int i = 6*40+320; i < 7*40+320; i += 1)
+           for(int i = 6*40; i < 7*40; i += 1)
            {
              std::cout << "frame number " << i;
              tick = Clock::now();
@@ -368,7 +367,7 @@ int main()
          //child of child process (process 3)
          cout << "process 3 starting" << endl;
 
-         for(int i = 3*40+320; i < 4*40+320; i += 1)
+         for(int i = 3*40; i < 4*40; i += 1)
          {
            std::cout << "frame number " << i;
            tick = Clock::now();
@@ -394,7 +393,7 @@ int main()
        {
          cout << "process 7 starting" << endl;
 
-         for(int i = 7*40+320; i < 8*40+320; i += 1)
+         for(int i = 7*40; i < 8*40; i += 1)
          {
            std::cout << "frame number " << i;
            tick = Clock::now();

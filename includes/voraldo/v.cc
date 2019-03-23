@@ -562,7 +562,7 @@ void Voraldo_Draw::draw_triangle(vec v0, vec v1, vec v2, Vox set, bool draw, boo
  		side1 = side1/length;
  		side2 = side2/length;
 
- 		for(int i = 0; i < length; i++)
+ 		for(double i = 0; i < length; i+=0.3)
  		{
  			c1[0] = v0[0] + i*side1[0];
  			c1[1] = v0[1] + i*side1[1];
