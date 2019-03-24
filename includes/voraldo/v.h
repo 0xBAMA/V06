@@ -6,10 +6,10 @@
 //IMPORTANT LINKS RE CIMG LIBRARY docs
 //http://cimg.eu/reference/group__cimg__overview.html
 
-/*
-#include "../json.hpp"  	//single-header library for output file formatting
+
+#include "../json.hpp"  	//single-header library for structured output file formatting
 //MIT License
-*/
+
 
 #include "../linalg.h"      //single-header library for linear algebra (vectors)
 //Public Domain License
@@ -101,10 +101,11 @@ public:
 	~Voraldo_Draw();
 
 	void init_block(vec dimensions);
-	//initializes block with selected dimensions, with or without noise
+	//initializes empty block with selected dimensions
 
 	void clear_all();
 	//sets all state and mask values to zero
+		//not supported in model files
 
 // 	███▄ ▄███▓ ▄▄▄        ██████  ██ ▄█▀
 // ▓██▒▀█▀ ██▒▒████▄    ▒██    ▒  ██▄█▒
@@ -145,7 +146,7 @@ public:
 //draw and mask are exclusive, you might say independent of one another - i.e.
 //	these functions can be used to mask without drawing if desired
 
-	void draw_noise(bool draw=true, float alpha=1.0, float lighting_intensity=1.0, bool mask=false);
+	void draw_noise(float alpha=1.0, float lighting_intensity=1.0, int seed=5, bool draw=true, bool mask=false);
 
 	//replaces the noisefill argument for the init_block
 

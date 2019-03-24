@@ -26,7 +26,6 @@ Voraldo *main_block;
 
 int main()
 {
-
   main_block = new Voraldo();
   main_block->draw->init_block(dimensions);
 
@@ -64,7 +63,7 @@ int main()
    vec ball_position = ((ap + ep + cp + gp) / 4.0) + vec(0,15,0);
 
 
-   for(int i = 0; i < 315; i += 1)
+   for(int i = 0; i < 1; i += 1)
    {
      std::cout << "frame number " << i;
      tick = Clock::now();
@@ -117,15 +116,13 @@ int main()
      main_block->draw->draw_sphere(center,1000,get_vox(17,0.0007,0.1,false),true,false);
 
 
-     main_block->draw->draw_line_segment(vec(180,8,227), vec( 80, 78,227), get_vox(30,1.0,1.0,true));
-     main_block->draw->draw_line_segment(vec(180,8,178), vec( 80, 78,178), get_vox(30,1.0,1.0,true));
-
-     //main_block->draw->draw_cylinder(center,center+vec(0,20,20),45,get_vox(37,0.02,1.0,false),true,true);
      main_block->draw->draw_tube(center+vec(0,-10,-10),center+vec(0,10,10),45,55,get_vox(37,0.02,0.3,false),true,true);
 
-     main_block->draw->draw_regular_icosahedron(0.01*i,-0.01*i,0,20,center,get_vox(27,1.0,0.3,false/*vertex material*/),2,get_vox(4,1.0,0.3,false/*edge_material*/),1.5,get_vox(37,0.20,0.3,false/*face_material*/));
 
-    // std::cout << 257*257*257*sizeof(Vox) << endl;
+
+     main_block->draw->draw_regular_icosahedron(0,0,0,20,center,get_vox(27,1.0,0.3,false/*vertex material*/),2,get_vox(4,1.0,0.3,false/*edge_material*/),1.5,get_vox(37,0.02,0.3,false/*face_material*/));
+
+
 
 
      main_block->lighting->apply_ambient_occlusion();
