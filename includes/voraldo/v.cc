@@ -489,6 +489,7 @@ void Voraldo_Draw::mask_by_state(unsigned char s)
 
 void Voraldo_Draw::draw_noise(bool draw, float alpha, float lighting_intensity, bool mask)
 {
+  std::srand(5);
   for(int i = 0; i < parent->num_cells; i++)
   {
      if(std::rand()%696 == 69 && std::rand()%696 < 30)
