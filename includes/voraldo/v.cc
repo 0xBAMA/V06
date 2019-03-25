@@ -267,6 +267,7 @@ void Voraldo_IO::load_model_from_file(std::string filename)
   //steps 1 through num_steps - the draw calls
   for(int i = 1; i <= num_steps; i++)
   {
+    std::cout << endl << i;
     current_step = j.value("step_" + std::to_string(i),"{\"type\":\"empty\"}");
     j2 = nlohmann::json::parse(current_step);
 
@@ -299,14 +300,14 @@ void Voraldo_IO::load_model_from_file(std::string filename)
     else if(step_type == "point")
     {
       parent->draw->draw_point(vec(j2.value("point_x",0.0),j2.value("point_y",0.0),j2.value("point_z",0.0)),
-                                get_vox(j2.value("set_state",0),j2.value("set_alpha",0.0),j2.value("set_lighting_intensity",0.0),j2.value("set_mask",0.0)),
+                                get_vox(j2.value("set_state",0),j2.value("set_alpha",0.0),j2.value("set_lighting_intensity",0.0),j2.value("set_mask",false)),
                                 j2.value("draw",true),j2.value("mask",false));
     }
     else if(step_type == "line_segment")
     {
       parent->draw->draw_line_segment(vec(j2.value("point1_x",0.0),j2.value("point1_y",0.0),j2.value("point1_z",0.0)),
                                       vec(j2.value("point2_x",0.0),j2.value("point2_y",0.0),j2.value("point2_z",0.0)),
-                                      get_vox(j2.value("set_state",0),j2.value("set_alpha",0.0),j2.value("set_lighting_intensity",0.0),j2.value("set_mask",0.0)),
+                                      get_vox(j2.value("set_state",0),j2.value("set_alpha",0.0),j2.value("set_lighting_intensity",0.0),j2.value("set_mask",false)),
                                       j2.value("draw",true),j2.value("mask",false));
     }
     else if(step_type == "triangle")
@@ -314,34 +315,34 @@ void Voraldo_IO::load_model_from_file(std::string filename)
       parent->draw->draw_triangle(vec(j2.value("point1_x",0.0),j2.value("point1_y",0.0),j2.value("point1_z",0.0)),
                                   vec(j2.value("point2_x",0.0),j2.value("point2_y",0.0),j2.value("point2_z",0.0)),
                                   vec(j2.value("point3_x",0.0),j2.value("point3_y",0.0),j2.value("point3_z",0.0)),
-                                  get_vox(j2.value("set_state",0),j2.value("set_alpha",0.0),j2.value("set_lighting_intensity",0.0),j2.value("set_mask",0.0)),
+                                  get_vox(j2.value("set_state",0),j2.value("set_alpha",0.0),j2.value("set_lighting_intensity",0.0),j2.value("set_mask",false)),
                                   j2.value("draw",true),j2.value("mask",false));
     }
     else if(step_type == "sphere")
     {
-      parent->draw->draw_sphere(vec(j2.value("point_x",0.0),j2.value("point_y",0.0),j2.value("point_z",0.0)), j2.value("radius",0.0),
-                                get_vox(j2.value("set_state",0),j2.value("set_alpha",0.0),j2.value("set_lighting_intensity",0.0),j2.value("set_mask",0.0)),
+      parent->draw->draw_sphere(vec(j2.value("point_x",0.0),j2.value("point_y",0.0),j2.value("point_z",0.0)), j2.value("radius",3.0),
+                                get_vox(j2.value("set_state",0),j2.value("set_alpha",0.0),j2.value("set_lighting_intensity",0.0),j2.value("set_mask",false)),
                                 j2.value("draw",true),j2.value("mask",false));
     }
     else if(step_type == "ellipsoid")
     {
       parent->draw->draw_ellipsoid(vec(j2.value("point_x",0.0),j2.value("point_y",0.0),j2.value("point_z",0.0)),
                                     vec(j2.value("radius_x",0.0),j2.value("radius_y",0.0),j2.value("radius_z",0.0)),
-                                    get_vox(j2.value("set_state",0),j2.value("set_alpha",0.0),j2.value("set_lighting_intensity",0.0),j2.value("set_mask",0.0)),
+                                    get_vox(j2.value("set_state",0),j2.value("set_alpha",0.0),j2.value("set_lighting_intensity",0.0),j2.value("set_mask",false)),
                                     j2.value("draw",true),j2.value("mask",false));
     }
     else if(step_type == "cylinder")
     {
       parent->draw->draw_cylinder(vec(j2.value("bvec_x",0.0),j2.value("bvec_y",0.0),j2.value("bvec_z",0.0)),
                                   vec(j2.value("tvec_x",0.0),j2.value("tvec_y",0.0),j2.value("tvec_z",0.0)),j2.value("radius",0.0),
-                                  get_vox(j2.value("set_state",0),j2.value("set_alpha",0.0),j2.value("set_lighting_intensity",0.0),j2.value("set_mask",0.0)),
+                                  get_vox(j2.value("set_state",0),j2.value("set_alpha",0.0),j2.value("set_lighting_intensity",0.0),j2.value("set_mask",false)),
                                   j2.value("draw",true),j2.value("mask",false));
     }
     else if(step_type == "tube")
     {
       parent->draw->draw_tube(vec(j2.value("bvec_x",0.0),j2.value("bvec_y",0.0),j2.value("bvec_z",0.0)),
                                   vec(j2.value("tvec_x",0.0),j2.value("tvec_y",0.0),j2.value("tvec_z",0.0)),j2.value("inner_radius",0.0),j2.value("outer_radius",0.0),
-                                  get_vox(j2.value("set_state",0),j2.value("set_alpha",0.0),j2.value("set_lighting_intensity",0.0),j2.value("set_mask",0.0)),
+                                  get_vox(j2.value("set_state",0),j2.value("set_alpha",0.0),j2.value("set_lighting_intensity",0.0),j2.value("set_mask",false)),
                                   j2.value("draw",true),j2.value("mask",false));
     }
     else if(step_type == "quadrilateral_hexahedron")
@@ -354,16 +355,16 @@ void Voraldo_IO::load_model_from_file(std::string filename)
                                                   vec(j2.value("f_x",0.0),j2.value("f_y",0.0),j2.value("f_z",0.0)),
                                                   vec(j2.value("g_x",0.0),j2.value("g_y",0.0),j2.value("g_z",0.0)),
                                                   vec(j2.value("h_x",0.0),j2.value("h_y",0.0),j2.value("h_z",0.0)),
-                                                  get_vox(j2.value("set_state",0),j2.value("set_alpha",0.0),j2.value("set_lighting_intensity",0.0),j2.value("set_mask",0.0)),
+                                                  get_vox(j2.value("set_state",0),j2.value("set_alpha",0.0),j2.value("set_lighting_intensity",0.0),j2.value("set_mask",false)),
                                                   j2.value("draw",true),j2.value("mask",false));
     }
     else if(step_type == "regular_icosahedron")
     {
       parent->draw->draw_regular_icosahedron(j2.value("x_rot",0.0),j2.value("y_rot",0.0),j2.value("z_rot",0.0),j2.value("scale",0.0),
                                               vec(j2.value("center_x",0.0),j2.value("center_y",0.0),j2.value("center_z",0.0)),
-                                              get_vox(j2.value("vertex_state",0),j2.value("vertex_alpha",0.0),j2.value("vertex_lighting_intensity",0.0),j2.value("vertex_mask",0.0)),j2.value("vertex_radius",0.0),
-                                              get_vox(j2.value("edge_state",0),j2.value("edge_alpha",0.0),j2.value("edge_lighting_intensity",0.0),j2.value("edge_mask",0.0)),j2.value("edge_thickness",0.0),
-                                              get_vox(j2.value("face_state",0),j2.value("face_alpha",0.0),j2.value("face_lighting_intensity",0.0),j2.value("face_mask",0.0)),j2.value("draw_faces",0),
+                                              get_vox(j2.value("vertex_state",0),j2.value("vertex_alpha",0.0),j2.value("vertex_lighting_intensity",0.0),j2.value("vertex_mask",false)),j2.value("vertex_radius",0.0),
+                                              get_vox(j2.value("edge_state",0),j2.value("edge_alpha",0.0),j2.value("edge_lighting_intensity",0.0),j2.value("edge_mask",false)),j2.value("edge_thickness",0.0),
+                                              get_vox(j2.value("face_state",0),j2.value("face_alpha",0.0),j2.value("face_lighting_intensity",0.0),j2.value("face_mask",false)),j2.value("draw_faces",0),
                                               j2.value("draw",true),j2.value("mask",false));
     }
     // else if()
@@ -605,9 +606,9 @@ void Voraldo_Draw::clear_all()
 
 void Voraldo_Draw::mask_unmask_all()
 {
-  nlohmann::json j;
-  j["type"] = "unmask_all";
-  std::cout << j.dump() << endl;
+  // nlohmann::json j;
+  // j["type"] = "unmask_all";
+  // std::cout << j.dump() << endl;
 
 
  for(int i = 0; i < parent->num_cells; i++)
@@ -618,9 +619,9 @@ void Voraldo_Draw::mask_unmask_all()
 
 void Voraldo_Draw::mask_invert_mask()
 {
-  nlohmann::json j;
-  j["type"] = "invert_mask";
-  std::cout << j.dump() << endl;
+  // nlohmann::json j;
+  // j["type"] = "invert_mask";
+  // std::cout << j.dump() << endl;
 
  for(int i = 0; i < parent->num_cells; i++)
  {
@@ -630,9 +631,9 @@ void Voraldo_Draw::mask_invert_mask()
 
 void Voraldo_Draw::mask_all_nonzero()
 {
-  nlohmann::json j;
-  j["type"] = "mask_all_nonzero";
-  std::cout << j.dump() << endl;
+  // nlohmann::json j;
+  // j["type"] = "mask_all_nonzero";
+  // std::cout << j.dump() << endl;
 
  for(int i = 0; i < parent->num_cells; i++)
  {
@@ -645,10 +646,10 @@ void Voraldo_Draw::mask_all_nonzero()
 
 void Voraldo_Draw::mask_by_state(unsigned char s)
 {
-  nlohmann::json j;
-  j["type"] = "mask_by_state";
-  j["state"] = s;
-  std::cout << j.dump() << endl;
+  // nlohmann::json j;
+  // j["type"] = "mask_by_state";
+  // j["state"] = s;
+  // std::cout << j.dump() << endl;
 
  for(int i = 0; i < parent->num_cells; i++)
  {
@@ -661,14 +662,14 @@ void Voraldo_Draw::mask_by_state(unsigned char s)
 
 void Voraldo_Draw::draw_noise(float alpha, float lighting_intensity, int seed, bool draw, bool mask)
 {
-  nlohmann::json j;
-  j["type"] = "noise";
-  j["alpha"] = alpha;
-  j["lighting_intensity"] = lighting_intensity;
-  j["seed"] = seed;
-  j["draw"] = draw;
-  j["mask"] = mask;
-  std::cout << j.dump() << endl;
+  // nlohmann::json j;
+  // j["type"] = "noise";
+  // j["alpha"] = alpha;
+  // j["lighting_intensity"] = lighting_intensity;
+  // j["seed"] = seed;
+  // j["draw"] = draw;
+  // j["mask"] = mask;
+  // std::cout << j.dump() << endl;
 
   std::srand(seed);
   for(int i = 0; i < parent->num_cells; i++)
@@ -810,6 +811,7 @@ void Voraldo_Draw::draw_sphere(vec center_point, double radius, Vox set, bool dr
   // j["point_x"] = center_point[0];
   // j["point_y"] = center_point[1];
   // j["point_z"] = center_point[2];
+  // j["radius"] = radius;
   // j["set_state"] = set.state;
   // j["set_alpha"] = set.alpha;
   // j["set_lighting_intensity"] = set.lighting_intensity;
@@ -1047,27 +1049,36 @@ void Voraldo_Draw::draw_quadrilateral_hexahedron(vec a, vec b, vec c, vec d, vec
   // j["a_x"] = a[0];
   // j["a_y"] = a[1];
   // j["a_z"] = a[2];
+  //
   // j["b_x"] = b[0];
   // j["b_y"] = b[1];
   // j["b_z"] = b[2];
+  //
   // j["c_x"] = c[0];
   // j["c_y"] = c[1];
   // j["c_z"] = c[2];
+  //
   // j["d_x"] = d[0];
   // j["d_y"] = d[1];
   // j["d_z"] = d[2];
-  // j["d_x"] = d[0];
-  // j["d_y"] = d[1];
-  // j["d_z"] = d[2];
+  //
+  //
   // j["e_x"] = e[0];
   // j["e_y"] = e[1];
   // j["e_z"] = e[2];
+  //
   // j["f_x"] = f[0];
   // j["f_y"] = f[1];
   // j["f_z"] = f[2];
+  //
   // j["g_x"] = g[0];
   // j["g_y"] = g[1];
   // j["g_z"] = g[2];
+  //
+  // j["h_x"] = h[0];
+  // j["h_y"] = h[1];
+  // j["h_z"] = h[2];
+  //
   // j["set_state"] = set.state;
   // j["set_alpha"] = set.alpha;
   // j["set_lighting_intensity"] = set.lighting_intensity;
