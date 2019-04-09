@@ -383,6 +383,7 @@ void Voraldo_IO::load_model_from_file(std::string filename)
     {
       std::cout << endl << "unknown draw type" << endl;
     }
+    std::cout << " done";
   }
   return;
 }
@@ -485,6 +486,7 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
  	double t1 = 9999;
 
   double tmin, tmax;
+  double alpha_sum;
 
 
  	for(double x = -(image_x_dimension/2-5); x <= (image_x_dimension/2-5); x++)
@@ -516,14 +518,17 @@ void Voraldo_IO::display(std::string filename, double x_rot, double y_rot, doubl
 
  			if(line_box_intersection)
  			{//the ray hits the box, we will need to step through the box
+        alpha_sum = 0;
  				for(double z = tmin; z <= tmax; z+=0.5) //go from close intersection point (tmin) to far intersection point (tmax)
  				{
  					vector_test_point = linalg::floor(vector_starting_point + z*vector_increment);  //get the test point
  					temp = parent->get_data_by_vector_index(vector_test_point);                     //get the data at the test point
+          alpha_sum += temp.alpha;
           if(temp.state != 0)
           {
             voxtack.push(temp);
           }
+          if(alpha_sum > 4.0) break;
  				}//end for (z)
         //the for loop is completed, now process the stack
 
@@ -1561,6 +1566,54 @@ void Voraldo_Draw::draw_regular_icosahedron(double x_rot, double y_rot, double z
     draw_sphere(l, verticies_radius, vertex_material, draw, mask);
   }
 }
+
+void Voraldo_Draw::draw_heightmap(/*std::string filename, std::vector<Vox> materials,*/ bool draw, bool mask)
+{
+  using namespace cimg_library;
+  unsigned char current_color;
+  unsigned char current_height;
+  unsigned char current_colormap;
+
+  CImg<unsigned char> heightmap("heights.png");
+  CImg<unsigned char> colormap("greycolors.png");
+
+  for(int x = 0; x < 512; x++){
+    for(int z = 0; z < 512; z++){
+
+      current_height = heightmap.atXY(x,z);
+      current_colormap = colormap.atXY(x,z);
+
+      if(current_colormap < 30){
+        current_color = 62; //black
+      }else if(current_colormap < 60){
+        current_color = 61; // t dark grey
+      }else if(current_colormap < 90){
+        current_color = 60; // t dark med
+      }else if(current_colormap < 120){
+        current_color = 59; // t med light
+      }else if(current_colormap < 150){
+        current_color = 58; // t light
+      }else{
+        current_color = 57; // t lighter
+      }
+
+      draw_point(vec(x,current_height/3,z),get_vox(current_color,1,0.3,false),draw,mask);
+
+
+      //for(int y = 0; y < current_height/3; y++){
+        //draw_point(vec(x,y,z),get_vox(current_color,1,0.3,false),draw,mask);
+      //}
+      //cout << heightmap.atXY(x,z) << " ";
+    }
+    //cout << endl;
+  }
+
+
+    //go up to y
+
+  return;
+}
+
 
 
 //---------------------------

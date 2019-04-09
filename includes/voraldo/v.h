@@ -189,6 +189,9 @@ public:
 		//the edge width (0 -> don't draw, 0-1 -> draw a line or >1 -> draw a cylinder) and the radius of the spheres for the verticies can be specified.
 		//right now there's no way to manipulate the faces, beyond the material.
 
+	void draw_heightmap(/*std::string filename, std::vector<Vox> materials,*/ bool draw=true, bool mask=false);
+		//how to handle materials? vector<Vox> as an argument, then equate the ratios of height/max height to index/length
+
 };
 
 class Voraldo{
