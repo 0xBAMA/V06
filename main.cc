@@ -21,6 +21,9 @@ int init_z = 512;
 
 vec dimensions(init_x,init_y,init_z);
 
+int startval = 0;
+int endval = 0;
+
 Voraldo *main_block;
 
 int main()
@@ -56,7 +59,7 @@ int main()
 
  if(fork()){
     if(fork()){
-      for(int i = 2040; i < 3100; i += 4)
+      for(int i = startval; i < endval; i += 4)
       {
         std::cout << "frame number " << i;
         tick = Clock::now();
@@ -69,7 +72,7 @@ int main()
 
        }//end for
    }else{
-     for(int i = 2041; i < 3100; i += 4)
+     for(int i = startval+1; i < endval; i += 4)
      {
        std::cout << "frame number " << i;
        tick = Clock::now();
@@ -84,7 +87,7 @@ int main()
    }
  }else{
    if(fork()){
-     for(int i = 2042; i < 3100; i += 4)
+     for(int i = startval+2; i < endval; i += 4)
      {
        std::cout << "frame number " << i;
        tick = Clock::now();
@@ -97,7 +100,7 @@ int main()
 
       }//end for
   }else{
-    for(int i = 2043; i < 3100; i += 4)
+    for(int i = startval+3; i < endval; i += 4)
     {
       std::cout << "frame number " << i;
       tick = Clock::now();
