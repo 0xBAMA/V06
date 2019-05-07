@@ -181,7 +181,7 @@ public:
 	//draws a block shape that can be stretched, skewed, twisted and rotated.
 		//the main issue comes in when the four points making up a face do not lie in
 		//the same plane - there the algorithm has to choose between two ambigous
-		//cases and the results will be less than predictable.
+		//cases and the results will be less than predictable i.e. a default is used.
 
 	void draw_regular_icosahedron(double x_rot, double y_rot, double z_rot, double scale, vec center_point, Vox vertex_material, double verticies_radius, Vox edge_material, double edge_thickness, Vox face_material, bool draw_faces = true, bool draw=true, bool mask=false);
 	//too many arguments? allows for the scaling, rotation and then placement of the icosahedron.
