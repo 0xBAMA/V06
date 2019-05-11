@@ -1615,6 +1615,71 @@ void Voraldo_Draw::draw_heightmap(/*std::string filename, std::vector<Vox> mater
 }
 
 
+void draw_maze_base()
+{
+  std::vector<CImg<unsigned char>> levelvec;
+  //allows the use of a loop
+
+  CImg<unsigned char> level0("maze/level0.png");
+  levelvec.push_back(level0);
+
+  CImg<unsigned char> level1("maze/level1.png");
+  levelvec.push_back(level1);
+
+  CImg<unsigned char> level2("maze/level2.png");
+  levelvec.push_back(level2);
+
+  CImg<unsigned char> level3("maze/level3.png");
+  levelvec.push_back(level3);
+
+  CImg<unsigned char> level4("maze/level4.png");
+  levelvec.push_back(level4);
+
+  CImg<unsigned char> level5("maze/level5.png");
+  levelvec.push_back(level5);
+
+  Vox wall_mat    = get_vox(59,0.3,1.0,false);
+  Vox column_mat  = get_vox(13,0.5,1.0,false);
+  Vox up_mat      = get_vox(24,1.0,1.0,false);
+  Vox down_mat    = get_vox( 5,1.0,1.0,false);
+
+  int z = 25;
+  unsigned char red, green, blue;
+
+  for(int n = 0; n < 6; n++)
+  {//0,1,2,3,4,5
+    for(int x = 0; x < 100; x++)
+    {
+      for(int y = 0; y < 100; y++)
+      {
+
+        red   = levelvec[n].atXY(x,y,0,0);//accessing separate channels
+        green = levelvec[n].atXY(x,y,0,1);
+        blue  = levelvec[n].atXY(x,y,0,2);
+
+
+        if(red == 0 && green == 0 && blue == 0)
+        {//if it's a black pixel, draw the wall
+
+        }
+        else if(red == 255 && green == 255 && blue == 255)
+        {//if it's a white pixel, it's negative space, skip it
+
+        }
+        else if(red == 255 && green == 0 && blue == 0)
+        {//if it's a red pixel, it's a way to go down, draw a column down in the negative space
+
+        }
+        else if(red == 0 && green == 255 && blue == 0)
+        {//if it's a green pixel, it's a way to go up
+
+        }
+      }
+    }
+    z+=18;
+  }
+}
+
 
 //---------------------------
 Voraldo::Voraldo()

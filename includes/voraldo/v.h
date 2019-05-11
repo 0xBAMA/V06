@@ -192,6 +192,8 @@ public:
 	void draw_heightmap(/*std::string filename, std::vector<Vox> materials,*/ bool draw=true, bool mask=false);
 		//how to handle materials? vector<Vox> as an argument, then equate the ratios of height/max height to index/length
 
+	void draw_maze_base();
+
 };
 
 class Voraldo{

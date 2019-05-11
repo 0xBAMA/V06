@@ -15,14 +15,14 @@ using std::cin;
 using Clock=std::chrono::high_resolution_clock;
 using milliseconds=std::chrono::milliseconds;
 
-int init_x = 512;
-int init_y = 257;
-int init_z = 512;
+int init_x = 150;
+int init_y = 150;
+int init_z = 150;
 
 vec dimensions(init_x,init_y,init_z);
 
 int startval = 0;
-int endval = 0;
+int endval = 1;
 
 Voraldo *main_block;
 
@@ -45,18 +45,34 @@ int main()
 
   //main_block->draw->draw_heightmap();
 
+  // main_block->draw->draw_sphere(center, 1000, get_vox(38,0.0007,0.1,false));
+  // main_block->draw->draw_noise();
+  //
+  // main_block->draw->draw_heightmap();
+  //
+  // main_block->draw->draw_regular_icosahedron(0,0,0,20,vec(400,100,260),get_vox(27,1.0,0.3,false),2,get_vox(62,0.3,0.3,false),1.8,get_vox(8,0.08,0.3,false));
+  //
+  // main_block->lighting->apply_ambient_occlusion();
+  // main_block->lighting->apply_directional_lighting(5.0, 3.14, 0.25*3.14, 3.14/3, 0.15, true);
+  // main_block->lighting->scale_lighting_intensity(4.0);
+
   main_block->draw->draw_sphere(center, 1000, get_vox(38,0.0007,0.1,false));
-  main_block->draw->draw_noise();
+  main_block->draw->draw_maze_base();
 
-  main_block->draw->draw_heightmap();
+  for(int i = startval; i < endval; i += 1)
+  {
+    std::cout << "frame number " << i;
+    tick = Clock::now();
 
-  main_block->draw->draw_regular_icosahedron(0,0,0,20,vec(400,100,260),get_vox(27,1.0,0.3,false),2,get_vox(62,0.3,0.3,false),1.8,get_vox(8,0.08,0.3,false));
+    sprintf(numstring, "%04d", i);//this is a better solution on string formatting
+    main_block->io->display("animation/new_output"+ std::string(numstring) +".png",  3.14, 0.002*i*3.14/3.0, 3.14/3.0, 0.4, false);
 
-  main_block->lighting->apply_ambient_occlusion();
-  main_block->lighting->apply_directional_lighting(5.0, 3.14, 0.25*3.14, 3.14/3, 0.15, true);
-  main_block->lighting->scale_lighting_intensity(4.0);
+    tock = Clock::now();
+    std::cout << " took " << std::chrono::duration_cast<milliseconds>(tock-tick).count() << " milliseconds" << endl;
 
+   }//end for
 
+/*
  if(fork()){
     if(fork()){
       for(int i = startval; i < endval; i += 4)
@@ -114,7 +130,7 @@ int main()
      }//end for
   }
 }
-
+*/
 
   return 0;
 }
