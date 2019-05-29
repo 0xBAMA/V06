@@ -55,6 +55,13 @@ int main()
   vec outer_point_1 = vec( 210, 32, 38 - 28 );
   vec outer_point_2 = vec( 210, 32, 89 + 28 );
 
+  vec ball_1_center = ( middle_front_point_1 + middle_back_point_1 + outer_point_1 );
+  vec ball_2_center = ( middle_front_point_2 + middle_back_point_2 + outer_point_2 );
+
+  ball_1_center = vec( ball_1_center[0]/3.0 + 24, ball_1_center[1]/3.0 - 4, ball_1_center[2]/3.0 + 3 );
+  ball_2_center = vec( ball_2_center[0]/3.0 + 24, ball_2_center[1]/3.0 - 4, ball_2_center[2]/3.0 - 3 );
+
+
   main_block->draw->draw_triangle( middle_front_point_1, middle_back_point_1, outer_point_1, get_vox(19,1.0,1.0,false));
   main_block->draw->draw_triangle( middle_front_point_2, middle_back_point_2, outer_point_2, get_vox(19,1.0,1.0,false));
 
@@ -111,7 +118,7 @@ int main()
 
   main_block->draw->draw_triangle( middle_front_point_1, middle_back_point_1, outer_point_1, get_vox(61,1.0,1.0,false));
   main_block->draw->draw_triangle( middle_front_point_2, middle_back_point_2, outer_point_2, get_vox(61,1.0,1.0,false));
-  
+
   middle_front_point_1 += vec( 1, -1, 0);
   middle_front_point_2 += vec( 1, -1, 0);
 
@@ -138,6 +145,32 @@ int main()
 
   main_block->draw->draw_triangle( middle_front_point_1, middle_back_point_1, outer_point_1, get_vox(61,1.0,1.0,false));
   main_block->draw->draw_triangle( middle_front_point_2, middle_back_point_2, outer_point_2, get_vox(61,1.0,1.0,false));
+
+
+  main_block->draw->mask_all_nonzero();
+  main_block->draw->mask_invert_mask();
+
+  main_block->draw->draw_sphere(ball_1_center, 16, get_vox(7,1.0,1.0,false));
+  main_block->draw->draw_sphere(ball_1_center, 14, get_vox(0,0.0,1.0,false));
+
+
+  main_block->draw->draw_sphere(ball_2_center, 16, get_vox(7,1.0,1.0,false));
+  main_block->draw->draw_sphere(ball_2_center, 14, get_vox(0,0.0,1.0,false));
+
+  main_block->draw->mask_unmask_all();
+
+
+  main_block->draw->draw_tube(ball_1_center,ball_2_center,2,4,get_vox(58,1.0,1.0,false));
+
+  main_block->draw->draw_tube(ball_1_center, middle_front_point_1,4,10,get_vox(58,1.0,1.0,false));
+  main_block->draw->draw_tube(ball_2_center, middle_front_point_2,4,10,get_vox(58,1.0,1.0,false));
+
+
+  main_block->draw->draw_sphere(ball_1_center, 11, get_vox(57,1.0,1.0,false));
+  main_block->draw->draw_sphere(ball_1_center, 10, get_vox(0,0.0,1.0,false));
+
+  main_block->draw->draw_sphere(ball_2_center, 11, get_vox(57,1.0,1.0,false));
+  main_block->draw->draw_sphere(ball_2_center, 10, get_vox(0,0.0,1.0,false));
 
 
 
