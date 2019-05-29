@@ -86,11 +86,12 @@ public:
 	//it isn't the best method to fill main with a bunch of calls to the draw function
 
 	void load(){return;} //this pair of functions still need to be figured out
-	void save(){return;}
+	void save(std::string filename);
 
 	void display(std::string filename, double x_rot, double y_rot, double z_rot, double scale, bool perspective);
 
 };
+
 
 
 class Voraldo_Draw{

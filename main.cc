@@ -15,9 +15,9 @@ using std::cin;
 using Clock=std::chrono::high_resolution_clock;
 using milliseconds=std::chrono::milliseconds;
 
-int init_x = 150;
-int init_y = 150;
-int init_z = 150;
+int init_x = 256;
+int init_y = 128;
+int init_z = 128;
 
 vec dimensions(init_x,init_y,init_z);
 
@@ -25,6 +25,7 @@ int startval = 0;
 int endval = 1;
 
 Voraldo *main_block;
+
 
 int main()
 {
@@ -39,25 +40,117 @@ int main()
   auto tock = Clock::now(); //variable to hold end of timekeeping
 
 
-  //main_block->io->load_model_from_file("model.mo");
 
-  //std::cout << endl << "loading of model done" << endl;
 
-  //main_block->draw->draw_heightmap();
 
-  // main_block->draw->draw_sphere(center, 1000, get_vox(38,0.0007,0.1,false));
-  // main_block->draw->draw_noise();
-  //
-  // main_block->draw->draw_heightmap();
-  //
-  // main_block->draw->draw_regular_icosahedron(0,0,0,20,vec(400,100,260),get_vox(27,1.0,0.3,false),2,get_vox(62,0.3,0.3,false),1.8,get_vox(8,0.08,0.3,false));
+
+
+
+  vec middle_front_point_1 = vec( 45, 63, 58 ); //side one is towards the negative z
+  vec middle_front_point_2 = vec( 45, 63, 69 ); //side one is towards the positive z
+
+  vec middle_back_point_1 = vec( 220, 60, 56 );
+  vec middle_back_point_2 = vec( 220, 60, 71 );
+
+  vec outer_point_1 = vec( 210, 32, 38 - 28 );
+  vec outer_point_2 = vec( 210, 32, 89 + 28 );
+
+  main_block->draw->draw_triangle( middle_front_point_1, middle_back_point_1, outer_point_1, get_vox(19,1.0,1.0,false));
+  main_block->draw->draw_triangle( middle_front_point_2, middle_back_point_2, outer_point_2, get_vox(19,1.0,1.0,false));
+
+  middle_front_point_1 += vec( 1, -1, 0);
+  middle_front_point_2 += vec( 1, -1, 0);
+
+  middle_back_point_1 += vec( -1, -1, 0);
+  middle_back_point_2 += vec( -1, -1, 0);
+
+  outer_point_1 += vec( -2, -2, 2);
+  outer_point_2 += vec( -2, -2, -2);
+
+
+  main_block->draw->draw_triangle( middle_front_point_1, middle_back_point_1, outer_point_1, get_vox(57,1.0,1.0,false));
+  main_block->draw->draw_triangle( middle_front_point_2, middle_back_point_2, outer_point_2, get_vox(57,1.0,1.0,false));
+
+
+  middle_front_point_1 += vec( 1, -1, 0);
+  middle_front_point_2 += vec( 1, -1, 0);
+
+  middle_back_point_1 += vec( -1, -1, 0);
+  middle_back_point_2 += vec( -1, -1, 0);
+
+  outer_point_1 += vec( -2, -2, 2);
+  outer_point_2 += vec( -2, -2, -2);
+
+
+  main_block->draw->draw_triangle( middle_front_point_1, middle_back_point_1, outer_point_1, get_vox(61,1.0,1.0,false));
+  main_block->draw->draw_triangle( middle_front_point_2, middle_back_point_2, outer_point_2, get_vox(61,1.0,1.0,false));
+
+  middle_front_point_1 += vec( 1, -1, 0);
+  middle_front_point_2 += vec( 1, -1, 0);
+
+  middle_back_point_1 += vec( -1, -1, 0);
+  middle_back_point_2 += vec( -1, -1, 0);
+
+  outer_point_1 += vec( -2, -2, 2);
+  outer_point_2 += vec( -2, -2, -2);
+
+
+  main_block->draw->draw_triangle( middle_front_point_1, middle_back_point_1, outer_point_1, get_vox(57,1.0,1.0,false));
+  main_block->draw->draw_triangle( middle_front_point_2, middle_back_point_2, outer_point_2, get_vox(57,1.0,1.0,false));
+
+
+  middle_front_point_1 += vec( 1, -1, 0);
+  middle_front_point_2 += vec( 1, -1, 0);
+
+  middle_back_point_1 += vec( -1, -1, 0);
+  middle_back_point_2 += vec( -1, -1, 0);
+
+  outer_point_1 += vec( -2, -2, 2);
+  outer_point_2 += vec( -2, -2, -2);
+
+
+  main_block->draw->draw_triangle( middle_front_point_1, middle_back_point_1, outer_point_1, get_vox(61,1.0,1.0,false));
+  main_block->draw->draw_triangle( middle_front_point_2, middle_back_point_2, outer_point_2, get_vox(61,1.0,1.0,false));
+  
+  middle_front_point_1 += vec( 1, -1, 0);
+  middle_front_point_2 += vec( 1, -1, 0);
+
+  middle_back_point_1 += vec( -1, -1, 0);
+  middle_back_point_2 += vec( -1, -1, 0);
+
+  outer_point_1 += vec( -2, -2, 2);
+  outer_point_2 += vec( -2, -2, -2);
+
+
+  main_block->draw->draw_triangle( middle_front_point_1, middle_back_point_1, outer_point_1, get_vox(57,1.0,1.0,false));
+  main_block->draw->draw_triangle( middle_front_point_2, middle_back_point_2, outer_point_2, get_vox(57,1.0,1.0,false));
+
+
+  middle_front_point_1 += vec( 1, -1, 0);
+  middle_front_point_2 += vec( 1, -1, 0);
+
+  middle_back_point_1 += vec( -1, -1, 0);
+  middle_back_point_2 += vec( -1, -1, 0);
+
+  outer_point_1 += vec( -2, -2, 2);
+  outer_point_2 += vec( -2, -2, -2);
+
+
+  main_block->draw->draw_triangle( middle_front_point_1, middle_back_point_1, outer_point_1, get_vox(61,1.0,1.0,false));
+  main_block->draw->draw_triangle( middle_front_point_2, middle_back_point_2, outer_point_2, get_vox(61,1.0,1.0,false));
+
+
+
+
   //
   // main_block->lighting->apply_ambient_occlusion();
   // main_block->lighting->apply_directional_lighting(5.0, 3.14, 0.25*3.14, 3.14/3, 0.15, true);
   // main_block->lighting->scale_lighting_intensity(4.0);
 
-  main_block->draw->draw_sphere(center, 1000, get_vox(38,0.0007,0.1,false));
-  main_block->draw->draw_maze_base();
+  main_block->io->save("save.png");
+
+  // main_block->draw->draw_sphere(center, 1000, get_vox(38,0.0007,0.1,false));
+  //main_block->draw->draw_maze_base();
 
   for(int i = startval; i < endval; i += 1)
   {

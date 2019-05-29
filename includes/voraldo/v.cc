@@ -232,6 +232,92 @@ Voraldo_IO::~Voraldo_IO()
 
 }
 
+
+
+
+
+
+//  _________________    ________
+//  \______   \      \  /  _____/
+//   |     ___/   |   \/   \  ___
+//   |    |  /    |    \    \_\  \
+//   |____|  \____|__  /\______  /
+//                   \/        \/ //saving the block to send to OpenGL
+
+
+void Voraldo_IO::save( std::string filename )
+{
+  using namespace cimg_library;
+
+  int width = parent->x_dim;
+  int height = parent->y_dim;
+  int depth = parent->z_dim;
+
+  int current_x;
+  int current_y = 0;
+
+  Vox temp;
+
+
+  unsigned char image_color[3];
+
+
+  CImg<double> img( width, height*depth, 1, 4, 0 );
+  RGB temporary_color;
+
+
+  for(int z = 0; z < depth; z++)
+  {
+
+    for(int y = 0; y < height; y++)
+    {
+      current_x = 0;
+      for(int x = 0; x < width; x++)
+      {
+
+        temp = parent->get_data_by_vector_index(vec((float)x,(float)y,(float)z));
+
+        temporary_color = parent->palette[temp.state];
+
+        // img(current_x,current_y,1) = (temporary_color.red   * (temp.lighting_intensity))/255.0;
+        // img(current_x,current_y,2) = (temporary_color.green * (temp.lighting_intensity))/255.0;
+        // img(current_x,current_y,3) = (temporary_color.blue  * (temp.lighting_intensity))/255.0;
+
+
+        img(current_x,current_y,0) = temporary_color.red;
+        img(current_x,current_y,1) = temporary_color.blue;
+        img(current_x,current_y,2) = temporary_color.green;
+
+
+        img(current_x,current_y,3) = temp.alpha * 255;
+
+
+        cout << (double) temporary_color.red << " " << (double) temporary_color.green << " " << (double) temporary_color.blue << " " << (double) temp.alpha << endl;
+
+        current_x++;
+
+      }
+      current_y++;
+
+    }
+
+  }
+
+  img.save_png(filename.c_str());
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 void Voraldo_IO::load_model_from_file(std::string filename)
 {//This represents a step in what I think is a good direction - take things out of main and
   //allow for the user to load a model from a list of commands.
@@ -1615,8 +1701,11 @@ void Voraldo_Draw::draw_heightmap(/*std::string filename, std::vector<Vox> mater
 }
 
 
-void draw_maze_base()
+void Voraldo_Draw::draw_maze_base()
 {
+
+  using namespace cimg_library;
+
   std::vector<CImg<unsigned char>> levelvec;
   //allows the use of a loop
 
