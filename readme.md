@@ -16,7 +16,7 @@ animation https://youtu.be/EKtUuCGlVo0
 
 #####implement simple directional lighting (based on the algorithm of the display function) ***[THAT'S DONE]***
 
-![screenshot](https://imgur.com/EqxLsjN)
+![screenshot](https://imgur.com/EqxLsjN.png)
 
 
 What next?
